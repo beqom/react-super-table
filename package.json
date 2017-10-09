@@ -1,0 +1,25 @@
+{
+  "name": "react-table",
+  "description": null,
+  "version": "0.0.421",
+  "dependencies": {
+    "classnames": "2.2.5",
+    "immutable": "3.8.1",
+    "lodash": "4.17.4",
+    "react": "15.6.2",
+    "react-dom": "15.6.2",
+    "react-icons": "^2.2.5"
+  },
+  "devDependencies": {
+    "react-scripts": "1.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  }
+}
