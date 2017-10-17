@@ -298,6 +298,7 @@ class Table extends React.Component {
               keyPath={keyPath}
             />
             <TableBody
+              startAt={0}
               fields={freezedFields}
               rows={rows}
               keyPath={keyPath}
@@ -310,6 +311,7 @@ class Table extends React.Component {
           </div>
           <div className="table-content" onScroll={this.handleScrollContent}>
             <TableBody
+              startAt={freezedFields.size}
               fields={fields}
               rows={rows}
               keyPath={keyPath}

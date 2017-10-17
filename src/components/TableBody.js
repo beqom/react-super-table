@@ -100,12 +100,13 @@ class TableBody extends React.Component {
   }
 
   render() {
-    const { fields, rows, keyPath, colsWidth, rowsHeight, selectedCell } = this.props;
+    const { fields, rows, keyPath, colsWidth, rowsHeight, selectedCell, startAt } = this.props;
 
     const { colIndex, rowIndex, editing } = selectedCell || {};
 
     const tbodies = rows.map((row, ri) => {
-      const tds = fields.map((field, ci) => {
+      const tds = fields.map((field, i) => {
+        const ci = startAt + i;
         const selected = colIndex === ci && rowIndex === ri;
         const onSelect = () => this.props.onSelectCell(ci, ri);
         const style = { width: colsWidth.get(ci), height: rowsHeight.get(ri) };

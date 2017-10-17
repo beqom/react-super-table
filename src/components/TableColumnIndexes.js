@@ -13,14 +13,14 @@ const TableColumnIndexes = ({
   colsWidth
 }) => {
   const indexes = columns.map((_, colIndex) => {
-    const alpha = numToAlpha(startAt + colIndex);
+    const ci = colIndex + startAt;
+    const alpha = numToAlpha(ci);
     return (
       <th
-        className={classnames("frame-cell", { focused: colIndex === selectedCellColIndex })}
+        className={classnames("frame-cell", { focused: ci === selectedCellColIndex })}
         key={alpha}
-
       >
-        <div style={{ width: colsWidth.get(startAt + colIndex) }}>{alpha}</div>
+        <div style={{ width: colsWidth.get(ci) }}>{alpha}</div>
         <div
           className="frame-resize-handle frame-resize-handle--cols"
           draggable="true"
@@ -28,7 +28,7 @@ const TableColumnIndexes = ({
             onResizeStart({
               mouseX: e.clientX,
               handleBox: e.currentTarget.getBoundingClientRect(),
-              colIndex,
+              colIndex: ci,
             })}
           onDrag={e => onResize(e.clientX, e.clientY)}
           onDragEnd={e => onResizeEnd(e.clientX, e.clientY)}

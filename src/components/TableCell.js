@@ -48,6 +48,7 @@ class TableCell extends React.Component {
     if(nextProps.children !== this.props.children) return true;
     if(nextProps.selected !== this.props.selected) return true;
     if(nextProps.editing !== this.props.editing) return true;
+    if(nextProps.style !== this.props.style) return true;
     return false;
   }
 

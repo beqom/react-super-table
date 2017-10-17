@@ -119,6 +119,7 @@ table {
 
 td, th {
   border: 1px solid #ccc;
+  overflow: hidden;
 }
 
 .table-header-cell {
@@ -182,6 +183,7 @@ td, th {
   height: auto;
   resize: none;
   background: white;
+  overflow: auto;
 }
 
 
