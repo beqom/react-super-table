@@ -3,6 +3,7 @@ import throttle from 'lodash/throttle';
 import Immutable from 'immutable';
 import classnames from 'classnames';
 import IconPin from 'react-icons/lib/go/pin';
+import debounce from 'lodash/debounce';
 
 // import TableRowIndexes from '../TableRowIndexes';
 // import TableColumnIndexes from '../TableColumnIndexes';
@@ -10,32 +11,6 @@ import IconPin from 'react-icons/lib/go/pin';
 import TableHeader from './components/TableHeader';
 import TableBody from './components/TableBody';
 import './Table.scss';
-
-const flattenCols = cols => {
-  const childrenCols = cols.reduce((acc, col) => acc.concat(col.get('children')), Immutable.List());
-
-  return Immutable.List()
-    .push(cols)
-    .concat(childrenCols.size ? flattenCols(childrenCols) : []);
-};
-
-const getFields = cols =>
-  cols.reduce((acc, col) => {
-    if (col.get('children').size) return acc.concat(getFields(col.get('children')));
-    return acc.push(col);
-  }, Immutable.List());
-
-const getHeadingsAndFields = columns => {
-  const freezedColumns = columns.filter(col => col.get('freezed'));
-  const unfreezedColumns = columns.filter(col => !col.get('freezed'));
-
-  return {
-    headings: flattenCols(unfreezedColumns),
-    freezedHeadings: flattenCols(freezedColumns),
-    fields: getFields(unfreezedColumns),
-    freezedFields: getFields(freezedColumns),
-  };
-};
 
 const getHeaderRowsCount = (columns, groups) => {
   const colGroups = columns
@@ -79,7 +54,9 @@ class Table extends React.Component {
     this.handleResizeEnd = this.handleResizeEnd.bind(this);
     this.handleSelectCell = this.handleSelectCell.bind(this);
     this.handleEditSelectedCell = this.handleEditSelectedCell.bind(this);
-    this.handleScrollContent = this.handleScrollContent.bind(this);
+    this.handleScrollContent = debounce(this.handleScrollContent.bind(this), 10);
+    this.handleScrollFrozenContent = debounce(this.handleScrollFrozenContent.bind(this), 10);
+    this.handleScrollHeader = debounce(this.handleScrollHeader.bind(this), 10);
   }
 
   handleResizeStart({
@@ -134,15 +111,31 @@ class Table extends React.Component {
     });
   }
 
-  handleScrollContent(e) {
-    const { scrollLeft, scrollTop } = e.currentTarget;
+  handleScrollContent() {
+    const { scrollLeft, scrollTop } = this.contentNode;
 
-    if (this.headingsNode) {
-      this.headingsNode.scrollLeft = scrollLeft;
+    if (this.headerNode) {
+      this.headerNode.scrollLeft = scrollLeft;
     }
 
-    if (this.freezedColsNode) {
-      this.freezedColsNode.scrollTop = scrollTop;
+    if (this.frozenContentNode) {
+      this.frozenContentNode.scrollTop = scrollTop;
+    }
+  }
+
+  handleScrollFrozenContent() {
+    const { scrollTop } = this.frozenContentNode;
+
+    if (this.contentNode) {
+      this.contentNode.scrollTop = scrollTop;
+    }
+  }
+
+  handleScrollHeader() {
+    const { scrollLeft } = this.headerNode;
+
+    if (this.contentNode) {
+      this.contentNode.scrollLeft = scrollLeft;
     }
   }
 
@@ -237,8 +230,9 @@ class Table extends React.Component {
           </div>
           <div
             className="Table__head"
+            onScroll={this.handleScrollHeader}
             ref={node => {
-              this.headingsNode = node;
+              this.headerNode = node;
             }}
           >
             {/*
@@ -266,7 +260,7 @@ class Table extends React.Component {
         </div>
 
         <div className="Table__content-container">
-          <div className="Table__content-feezed-cols" ref={node => (this.freezedColsNode = node)}>
+          <div className="Table__content-feezed-cols" onScroll={this.handleScrollFrozenContent} ref={node => {this.frozenContentNode = node;}}>
             {/*
             <TableRowIndexes
               rows={rows}
@@ -288,7 +282,7 @@ class Table extends React.Component {
               onEditSelectedCell={this.handleEditSelectedCell}
             />
           </div>
-          <div className="Table__content" onScroll={this.handleScrollContent}>
+          <div className="Table__content" onScroll={this.handleScrollContent} ref={node => {this.contentNode = node;}}>
             <TableBody
               columns={columns}
               rows={rows}
