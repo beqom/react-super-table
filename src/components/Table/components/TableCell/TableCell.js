@@ -49,8 +49,8 @@ class TableCell extends React.Component {
   }
 
   render() {
-    const { children, selected, editing } = this.props;
-    const props = omit(this.props, ['children', 'selected', 'editing']);
+    const { children, selected, editing, editable, formula } = this.props;
+    const props = omit(this.props, ['children', 'selected', 'editing', 'editable', 'formula']);
     const editingProps = editing
       ? { contentEditable: 'true', dangerouslySetInnerHTML: { __html: children } }
       : { children };
@@ -58,7 +58,12 @@ class TableCell extends React.Component {
     return (
       <div
         {...props}
-        className={classnames('TableCell', { 'TableCell--selected': selected })}
+        className={classnames('TableCell', {
+          'TableCell--selected': selected,
+          'TableCell--editing': editing,
+          'TableCell--readonly': !editable,
+          'TableCell--formula': formula,
+        })}
         tabIndex="0"
         ref={this.setContentNode}
         {...editingProps}

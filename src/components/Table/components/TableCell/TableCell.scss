@@ -15,17 +15,37 @@
   padding: 10px 5px;
 }
 
+.TableCell--readonly {
+  color: #888;
+  font-style: italic;
+}
+
+.TableCell--formula {
+  position: relative;
+  &:after {
+    position: absolute;
+    content: "";
+    top: 5px;
+    right: 5px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: tomato;
+    display: block;
+  }
+}
+
 .TableCell--selected {
   z-index: 10;
-  box-shadow: inset 0 0 0 1px dodgerblue;
+  box-shadow: inset 0 0 0 3px dodgerblue;
   position: absolute;
   top: 0;
   left: 0;
   min-height: 100%;
 }
 
-.TableCell--selected:focus {
-  box-shadow: inset 0 0 0 1px dodgerblue;
+.TableCell--editing {
+  box-shadow: inset 0 0 0 3px dodgerblue;
   min-width: 100%;
   min-height: 100%;
   max-width: 200px;

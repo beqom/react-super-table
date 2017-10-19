@@ -47,7 +47,7 @@ class Table extends React.Component {
       },
       frozenColumns: this.columns.filter(c => c.getIn(['layout', 'frozen'])),
       columns: this.columns.filter(c => !c.getIn(['layout', 'frozen'])),
-      rows: Immutable.fromJS(this.props.rows),
+      rows: Immutable.fromJS(this.props.rows).slice(0, 20),
       groups: Immutable.fromJS(this.props.groups),
     };
 
@@ -55,6 +55,7 @@ class Table extends React.Component {
     this.handleResize = throttle(this.handleResize.bind(this), 50);
     this.handleResizeEnd = this.handleResizeEnd.bind(this);
     this.handleSelectCell = this.handleSelectCell.bind(this);
+    this.handleUnselectCell = this.handleUnselectCell.bind(this);
     this.handleEditSelectedCell = this.handleEditSelectedCell.bind(this);
     this.handleScrollContent = debounce(this.handleScrollContent.bind(this), 10);
     this.handleScrollFrozenContent = debounce(this.handleScrollFrozenContent.bind(this), 10);
@@ -147,12 +148,17 @@ class Table extends React.Component {
     });
   }
 
+  handleUnselectCell() {
+    this.setState({ selectedCell: undefined });
+  }
+
   handleEditSelectedCell() {
     const { selectedCell } = this.state;
     if (!selectedCell) return;
 
     const { columnKey, rowKey, editing } = selectedCell;
-    if (editing) return;
+    const selectedColumn = this.columns.find(column => column.get('key') === selectedCell.columnKey);
+    if (editing || !selectedColumn || !selectedColumn.get('editable') || !!selectedColumn.get('formula')) return;
 
     this.setState({
       selectedCell: { columnKey, rowKey, editing: true },
@@ -281,6 +287,7 @@ class Table extends React.Component {
               rowKey={rowKey}
               selectedCell={this.state.selectedCell}
               onSelectCell={this.handleSelectCell}
+              onUnselectCell={this.handleUnselectCell}
               onEditSelectedCell={this.handleEditSelectedCell}
             />
           </div>
@@ -291,6 +298,7 @@ class Table extends React.Component {
               rowKey={rowKey}
               selectedCell={this.state.selectedCell}
               onSelectCell={this.handleSelectCell}
+              onUnselectCell={this.handleUnselectCell}
               onEditSelectedCell={this.handleEditSelectedCell}
             />
           </div>

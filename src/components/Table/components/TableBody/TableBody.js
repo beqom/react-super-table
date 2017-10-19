@@ -56,46 +56,40 @@ class TableBody extends React.Component {
   }
 
   selectCellAbove(e) {
-    const { selectedCell } = this.props;
-    if (!selectedCell) return;
-
-    const { colIndex, rowIndex } = selectedCell;
-    this.selectCell(colIndex, Math.max(0, rowIndex - 1), e);
+    return this.selectCell(0, -1, e);
   }
 
   selectCellBelow(e) {
-    const { selectedCell } = this.props;
-    if (!selectedCell) return;
-
-    const { colIndex, rowIndex } = selectedCell;
-    const { size } = this.props.rows;
-    this.selectCell(colIndex, Math.min(size, rowIndex + 1), e);
+    return this.selectCell(0, 1, e);
   }
 
   selectCellRight(e) {
-    const { selectedCell } = this.props;
-    if (!selectedCell) return;
-
-    const { colIndex, rowIndex } = selectedCell;
-    const { size } = this.props.fields;
-    this.selectCell(Math.min(size, colIndex + 1), rowIndex, e);
+    return this.selectCell(1, 0, e);
   }
 
   selectCellLeft(e) {
-    const { selectedCell } = this.props;
-    if (!selectedCell) return;
-
-    const { colIndex, rowIndex } = selectedCell;
-    this.selectCell(Math.max(0, colIndex - 1), rowIndex, e);
+    return this.selectCell(-1, 0, e);
   }
 
-  selectCell(colIndex, rowIndex, e) {
+  selectCell(columnDelta, rowDelta, e) {
+    const { selectedCell = {}, columns, rows } = this.props;
+    if (!selectedCell) return;
     if (e) e.preventDefault();
 
-    const selectedCell = this.props.selectedCell || {};
-    if (colIndex === selectedCell.colIndex && rowIndex === selectedCell.rowIndex) return;
+    const selectedColumnIndex = this.props.columns.findIndex(column => column.get('key') === selectedCell.columnKey);
+    const selectedRowIndex = this.props.rows.findIndex(row => row.get(this.props.rowKey) === selectedCell.rowKey);
 
-    this.props.onSelectCell(colIndex, rowIndex);
+    if (selectedColumnIndex < 0 || selectedRowIndex < 0) return this.props.onUnselectCell();
+
+    const nextColumnIndex = Math.max(Math.min(columns.size, selectedColumnIndex + columnDelta), 0);
+    const nextRowIndex = Math.max(Math.min(rows.size, selectedRowIndex + rowDelta), 0);
+
+    if (selectedColumnIndex === nextColumnIndex && selectedRowIndex === nextRowIndex) return;
+
+    const columnKey = this.props.columns.getIn([nextColumnIndex, 'key']);
+    const rowKey = this.props.rows.getIn([nextRowIndex, this.props.rowKey]);
+
+    this.props.onSelectCell(columnKey, rowKey);
   }
 
   renderSelectRow() {
@@ -103,7 +97,7 @@ class TableBody extends React.Component {
 
     return (
       <th className="TableBody__cell">
-        <div className="TableBody__cell-content">
+        <div className="TableBody__cell-content TableBody__cell-content--select">
           <input type="checkbox" onChange={this.props.onChangeSelectRow} />
         </div>
       </th>
@@ -117,9 +111,14 @@ class TableBody extends React.Component {
       const rowKey = row.get(this.props.rowKey);
       const tds = columns.map(column => {
         const columnKey = column.get('key');
+        const formatter = column.get('formatter');
         const width = column.getIn(['layout', 'width']);
         const selected = selectedCell.columnKey === columnKey && selectedCell.rowKey === rowKey;
         const onSelect = () => this.props.onSelectCell(columnKey, rowKey);
+
+        const onClick = selected ? this.props.onEditSelectedCell : onSelect;
+        const editable = column.get('editable') && !column.get('formula')
+        const events = { onKeyDown: this.handleKeyPress, onClick };
 
         return (
           <td
@@ -129,11 +128,12 @@ class TableBody extends React.Component {
             <TableCell
               selected={selected}
               editing={selected && selectedCell.editing}
-              onKeyDown={this.handleKeyPress}
-              onClick={selected ? this.props.onEditSelectedCell : onSelect}
+              {...events}
               style={selected && selectedCell.editing ? {} : { width }}
+              editable={editable}
+              formula={column.get('formula')}
             >
-              {row.get(columnKey)}
+              {formatter(row.get(columnKey))}
             </TableCell>
           </td>
         );

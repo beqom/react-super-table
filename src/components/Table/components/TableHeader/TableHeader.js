@@ -48,7 +48,7 @@ class TableHeader extends React.Component {
 
     return (
       <th className="TableHeader__cell" rowSpan={this.props.headerRowsCount}>
-        <div className="TableHeader__cell-content">
+        <div className="TableHeader__cell-content TableHeader__cell-content--select">
           <input type="checkbox" onChange={this.props.onChangeSelectAllRows} />
         </div>
       </th>
