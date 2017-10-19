@@ -1546,7 +1546,7 @@ module.exports = true;
 
 // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
 var anObject = __webpack_require__(20);
-var dPs = __webpack_require__(198);
+var dPs = __webpack_require__(199);
 var enumBugKeys = __webpack_require__(94);
 var IE_PROTO = __webpack_require__(100)('IE_PROTO');
 var Empty = function () { /* empty */ };
@@ -2007,7 +2007,7 @@ var meta = module.exports = {
 /* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isFunction = __webpack_require__(184),
+var isFunction = __webpack_require__(185),
     isLength = __webpack_require__(131);
 
 /**
@@ -2393,7 +2393,7 @@ module.exports = Map;
 /* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Uint8Array = __webpack_require__(213);
+var Uint8Array = __webpack_require__(214);
 
 /**
  * Creates a clone of `arrayBuffer`.
@@ -2428,7 +2428,7 @@ module.exports = getPrototype;
 /***/ (function(module, exports, __webpack_require__) {
 
 var arrayFilter = __webpack_require__(366),
-    stubArray = __webpack_require__(186);
+    stubArray = __webpack_require__(187);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -9759,7 +9759,7 @@ module.exports = Stack;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseTimes = __webpack_require__(376),
-    isArguments = __webpack_require__(183),
+    isArguments = __webpack_require__(184),
     isArray = __webpack_require__(22),
     isBuffer = __webpack_require__(130),
     isIndex = __webpack_require__(179),
@@ -9906,7 +9906,7 @@ module.exports = assignValue;
 /* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var defineProperty = __webpack_require__(215);
+var defineProperty = __webpack_require__(216);
 
 /**
  * The base implementation of `assignValue` and `assignMergeValue` without
@@ -10007,7 +10007,7 @@ module.exports = freeGlobal;
 var arrayPush = __webpack_require__(128),
     getPrototype = __webpack_require__(110),
     getSymbols = __webpack_require__(111),
-    stubArray = __webpack_require__(186);
+    stubArray = __webpack_require__(187);
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -10151,6 +10151,200 @@ module.exports = toSource;
 /* 183 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var isObject = __webpack_require__(24),
+    now = __webpack_require__(427),
+    toNumber = __webpack_require__(224);
+
+/** Error message constants. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max,
+    nativeMin = Math.min;
+
+/**
+ * Creates a debounced function that delays invoking `func` until after `wait`
+ * milliseconds have elapsed since the last time the debounced function was
+ * invoked. The debounced function comes with a `cancel` method to cancel
+ * delayed `func` invocations and a `flush` method to immediately invoke them.
+ * Provide `options` to indicate whether `func` should be invoked on the
+ * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
+ * with the last arguments provided to the debounced function. Subsequent
+ * calls to the debounced function return the result of the last `func`
+ * invocation.
+ *
+ * **Note:** If `leading` and `trailing` options are `true`, `func` is
+ * invoked on the trailing edge of the timeout only if the debounced function
+ * is invoked more than once during the `wait` timeout.
+ *
+ * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+ * until to the next tick, similar to `setTimeout` with a timeout of `0`.
+ *
+ * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+ * for details over the differences between `_.debounce` and `_.throttle`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to debounce.
+ * @param {number} [wait=0] The number of milliseconds to delay.
+ * @param {Object} [options={}] The options object.
+ * @param {boolean} [options.leading=false]
+ *  Specify invoking on the leading edge of the timeout.
+ * @param {number} [options.maxWait]
+ *  The maximum time `func` is allowed to be delayed before it's invoked.
+ * @param {boolean} [options.trailing=true]
+ *  Specify invoking on the trailing edge of the timeout.
+ * @returns {Function} Returns the new debounced function.
+ * @example
+ *
+ * // Avoid costly calculations while the window size is in flux.
+ * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
+ *
+ * // Invoke `sendMail` when clicked, debouncing subsequent calls.
+ * jQuery(element).on('click', _.debounce(sendMail, 300, {
+ *   'leading': true,
+ *   'trailing': false
+ * }));
+ *
+ * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
+ * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
+ * var source = new EventSource('/stream');
+ * jQuery(source).on('message', debounced);
+ *
+ * // Cancel the trailing debounced invocation.
+ * jQuery(window).on('popstate', debounced.cancel);
+ */
+function debounce(func, wait, options) {
+  var lastArgs,
+      lastThis,
+      maxWait,
+      result,
+      timerId,
+      lastCallTime,
+      lastInvokeTime = 0,
+      leading = false,
+      maxing = false,
+      trailing = true;
+
+  if (typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  wait = toNumber(wait) || 0;
+  if (isObject(options)) {
+    leading = !!options.leading;
+    maxing = 'maxWait' in options;
+    maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
+    trailing = 'trailing' in options ? !!options.trailing : trailing;
+  }
+
+  function invokeFunc(time) {
+    var args = lastArgs,
+        thisArg = lastThis;
+
+    lastArgs = lastThis = undefined;
+    lastInvokeTime = time;
+    result = func.apply(thisArg, args);
+    return result;
+  }
+
+  function leadingEdge(time) {
+    // Reset any `maxWait` timer.
+    lastInvokeTime = time;
+    // Start the timer for the trailing edge.
+    timerId = setTimeout(timerExpired, wait);
+    // Invoke the leading edge.
+    return leading ? invokeFunc(time) : result;
+  }
+
+  function remainingWait(time) {
+    var timeSinceLastCall = time - lastCallTime,
+        timeSinceLastInvoke = time - lastInvokeTime,
+        result = wait - timeSinceLastCall;
+
+    return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
+  }
+
+  function shouldInvoke(time) {
+    var timeSinceLastCall = time - lastCallTime,
+        timeSinceLastInvoke = time - lastInvokeTime;
+
+    // Either this is the first call, activity has stopped and we're at the
+    // trailing edge, the system time has gone backwards and we're treating
+    // it as the trailing edge, or we've hit the `maxWait` limit.
+    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
+      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
+  }
+
+  function timerExpired() {
+    var time = now();
+    if (shouldInvoke(time)) {
+      return trailingEdge(time);
+    }
+    // Restart the timer.
+    timerId = setTimeout(timerExpired, remainingWait(time));
+  }
+
+  function trailingEdge(time) {
+    timerId = undefined;
+
+    // Only invoke if we have `lastArgs` which means `func` has been
+    // debounced at least once.
+    if (trailing && lastArgs) {
+      return invokeFunc(time);
+    }
+    lastArgs = lastThis = undefined;
+    return result;
+  }
+
+  function cancel() {
+    if (timerId !== undefined) {
+      clearTimeout(timerId);
+    }
+    lastInvokeTime = 0;
+    lastArgs = lastCallTime = lastThis = timerId = undefined;
+  }
+
+  function flush() {
+    return timerId === undefined ? result : trailingEdge(now());
+  }
+
+  function debounced() {
+    var time = now(),
+        isInvoking = shouldInvoke(time);
+
+    lastArgs = arguments;
+    lastThis = this;
+    lastCallTime = time;
+
+    if (isInvoking) {
+      if (timerId === undefined) {
+        return leadingEdge(lastCallTime);
+      }
+      if (maxing) {
+        // Handle invocations in a tight loop.
+        timerId = setTimeout(timerExpired, wait);
+        return invokeFunc(lastCallTime);
+      }
+    }
+    if (timerId === undefined) {
+      timerId = setTimeout(timerExpired, wait);
+    }
+    return result;
+  }
+  debounced.cancel = cancel;
+  debounced.flush = flush;
+  return debounced;
+}
+
+module.exports = debounce;
+
+
+/***/ }),
+/* 184 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var baseIsArguments = __webpack_require__(371),
     isObjectLike = __webpack_require__(43);
 
@@ -10190,7 +10384,7 @@ module.exports = isArguments;
 
 
 /***/ }),
-/* 184 */
+/* 185 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(36),
@@ -10233,7 +10427,7 @@ module.exports = isFunction;
 
 
 /***/ }),
-/* 185 */
+/* 186 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var arrayLikeKeys = __webpack_require__(170),
@@ -10271,7 +10465,7 @@ module.exports = keysIn;
 
 
 /***/ }),
-/* 186 */
+/* 187 */
 /***/ (function(module, exports) {
 
 /**
@@ -10300,8 +10494,8 @@ module.exports = stubArray;
 
 
 /***/ }),
-/* 187 */,
-/* 188 */
+/* 188 */,
+/* 189 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10326,7 +10520,7 @@ module.exports = {
 
 
 /***/ }),
-/* 189 */
+/* 190 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10535,9 +10729,9 @@ exports.isBuffer = function isBuffer(obj) {
 
 
 /***/ }),
-/* 190 */,
 /* 191 */,
-/* 192 */
+/* 192 */,
+/* 193 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10546,7 +10740,7 @@ exports.isBuffer = function isBuffer(obj) {
 __webpack_require__(241);
 
 /***/ }),
-/* 193 */
+/* 194 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10585,7 +10779,7 @@ var PANEL_ID = exports.PANEL_ID = ADDON_ID + '/actions-panel';
 var EVENT_ID = exports.EVENT_ID = ADDON_ID + '/action-event';
 
 /***/ }),
-/* 194 */
+/* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10634,7 +10828,7 @@ function selectStory(kind, story) {
 }
 
 /***/ }),
-/* 195 */
+/* 196 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10716,19 +10910,19 @@ function handle(e) {
 }
 
 /***/ }),
-/* 196 */
+/* 197 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = { "default": __webpack_require__(261), __esModule: true };
 
 /***/ }),
-/* 197 */
+/* 198 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = { "default": __webpack_require__(263), __esModule: true };
 
 /***/ }),
-/* 198 */
+/* 199 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var dP = __webpack_require__(16);
@@ -10747,7 +10941,7 @@ module.exports = __webpack_require__(18) ? Object.defineProperties : function de
 
 
 /***/ }),
-/* 199 */
+/* 200 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10770,7 +10964,7 @@ function hyphenateProperty(property) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 200 */
+/* 201 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10799,7 +10993,7 @@ function crossFade(property, value) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 201 */
+/* 202 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10828,7 +11022,7 @@ function cursor(property, value) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 202 */
+/* 203 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10857,7 +11051,7 @@ function filter(property, value) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 203 */
+/* 204 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10880,7 +11074,7 @@ function flex(property, value) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 204 */
+/* 205 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10925,7 +11119,7 @@ function flexboxOld(property, value, style) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 205 */
+/* 206 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10956,7 +11150,7 @@ function gradient(property, value) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 206 */
+/* 207 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10985,7 +11179,7 @@ function imageSet(property, value) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 207 */
+/* 208 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11003,7 +11197,7 @@ function position(property, value) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 208 */
+/* 209 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11042,7 +11236,7 @@ function sizing(property, value) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 209 */
+/* 210 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11053,7 +11247,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = transition;
 
-var _hyphenateProperty = __webpack_require__(199);
+var _hyphenateProperty = __webpack_require__(200);
 
 var _hyphenateProperty2 = _interopRequireDefault(_hyphenateProperty);
 
@@ -11141,7 +11335,7 @@ function transition(property, value, style, propertyPrefixMap) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 210 */
+/* 211 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11165,7 +11359,7 @@ exports.default = {
 module.exports = exports["default"];
 
 /***/ }),
-/* 211 */
+/* 212 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11193,7 +11387,7 @@ function prefixProperty(prefixProperties, property, style) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 212 */
+/* 213 */
 /***/ (function(module, exports) {
 
 exports = module.exports = stringify
@@ -11226,7 +11420,7 @@ function serializer(replacer, cycleReplacer) {
 
 
 /***/ }),
-/* 213 */
+/* 214 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var root = __webpack_require__(17);
@@ -11238,7 +11432,7 @@ module.exports = Uint8Array;
 
 
 /***/ }),
-/* 214 */
+/* 215 */
 /***/ (function(module, exports) {
 
 /**
@@ -11266,7 +11460,7 @@ module.exports = arrayEach;
 
 
 /***/ }),
-/* 215 */
+/* 216 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var getNative = __webpack_require__(34);
@@ -11283,7 +11477,7 @@ module.exports = defineProperty;
 
 
 /***/ }),
-/* 216 */
+/* 217 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetAllKeys = __webpack_require__(176),
@@ -11305,12 +11499,12 @@ module.exports = getAllKeys;
 
 
 /***/ }),
-/* 217 */
+/* 218 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetAllKeys = __webpack_require__(176),
     getSymbolsIn = __webpack_require__(178),
-    keysIn = __webpack_require__(185);
+    keysIn = __webpack_require__(186);
 
 /**
  * Creates an array of own and inherited enumerable property names and
@@ -11328,7 +11522,7 @@ module.exports = getAllKeysIn;
 
 
 /***/ }),
-/* 218 */
+/* 219 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var DataView = __webpack_require__(359),
@@ -11392,7 +11586,7 @@ module.exports = getTag;
 
 
 /***/ }),
-/* 219 */
+/* 220 */
 /***/ (function(module, exports) {
 
 /**
@@ -11416,7 +11610,7 @@ module.exports = mapToArray;
 
 
 /***/ }),
-/* 220 */
+/* 221 */
 /***/ (function(module, exports) {
 
 /**
@@ -11437,200 +11631,6 @@ function setToArray(set) {
 }
 
 module.exports = setToArray;
-
-
-/***/ }),
-/* 221 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var isObject = __webpack_require__(24),
-    now = __webpack_require__(427),
-    toNumber = __webpack_require__(224);
-
-/** Error message constants. */
-var FUNC_ERROR_TEXT = 'Expected a function';
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeMax = Math.max,
-    nativeMin = Math.min;
-
-/**
- * Creates a debounced function that delays invoking `func` until after `wait`
- * milliseconds have elapsed since the last time the debounced function was
- * invoked. The debounced function comes with a `cancel` method to cancel
- * delayed `func` invocations and a `flush` method to immediately invoke them.
- * Provide `options` to indicate whether `func` should be invoked on the
- * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
- * with the last arguments provided to the debounced function. Subsequent
- * calls to the debounced function return the result of the last `func`
- * invocation.
- *
- * **Note:** If `leading` and `trailing` options are `true`, `func` is
- * invoked on the trailing edge of the timeout only if the debounced function
- * is invoked more than once during the `wait` timeout.
- *
- * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
- * until to the next tick, similar to `setTimeout` with a timeout of `0`.
- *
- * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
- * for details over the differences between `_.debounce` and `_.throttle`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Function
- * @param {Function} func The function to debounce.
- * @param {number} [wait=0] The number of milliseconds to delay.
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=false]
- *  Specify invoking on the leading edge of the timeout.
- * @param {number} [options.maxWait]
- *  The maximum time `func` is allowed to be delayed before it's invoked.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
- * @returns {Function} Returns the new debounced function.
- * @example
- *
- * // Avoid costly calculations while the window size is in flux.
- * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
- *
- * // Invoke `sendMail` when clicked, debouncing subsequent calls.
- * jQuery(element).on('click', _.debounce(sendMail, 300, {
- *   'leading': true,
- *   'trailing': false
- * }));
- *
- * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
- * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
- * var source = new EventSource('/stream');
- * jQuery(source).on('message', debounced);
- *
- * // Cancel the trailing debounced invocation.
- * jQuery(window).on('popstate', debounced.cancel);
- */
-function debounce(func, wait, options) {
-  var lastArgs,
-      lastThis,
-      maxWait,
-      result,
-      timerId,
-      lastCallTime,
-      lastInvokeTime = 0,
-      leading = false,
-      maxing = false,
-      trailing = true;
-
-  if (typeof func != 'function') {
-    throw new TypeError(FUNC_ERROR_TEXT);
-  }
-  wait = toNumber(wait) || 0;
-  if (isObject(options)) {
-    leading = !!options.leading;
-    maxing = 'maxWait' in options;
-    maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
-    trailing = 'trailing' in options ? !!options.trailing : trailing;
-  }
-
-  function invokeFunc(time) {
-    var args = lastArgs,
-        thisArg = lastThis;
-
-    lastArgs = lastThis = undefined;
-    lastInvokeTime = time;
-    result = func.apply(thisArg, args);
-    return result;
-  }
-
-  function leadingEdge(time) {
-    // Reset any `maxWait` timer.
-    lastInvokeTime = time;
-    // Start the timer for the trailing edge.
-    timerId = setTimeout(timerExpired, wait);
-    // Invoke the leading edge.
-    return leading ? invokeFunc(time) : result;
-  }
-
-  function remainingWait(time) {
-    var timeSinceLastCall = time - lastCallTime,
-        timeSinceLastInvoke = time - lastInvokeTime,
-        result = wait - timeSinceLastCall;
-
-    return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
-  }
-
-  function shouldInvoke(time) {
-    var timeSinceLastCall = time - lastCallTime,
-        timeSinceLastInvoke = time - lastInvokeTime;
-
-    // Either this is the first call, activity has stopped and we're at the
-    // trailing edge, the system time has gone backwards and we're treating
-    // it as the trailing edge, or we've hit the `maxWait` limit.
-    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
-      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
-  }
-
-  function timerExpired() {
-    var time = now();
-    if (shouldInvoke(time)) {
-      return trailingEdge(time);
-    }
-    // Restart the timer.
-    timerId = setTimeout(timerExpired, remainingWait(time));
-  }
-
-  function trailingEdge(time) {
-    timerId = undefined;
-
-    // Only invoke if we have `lastArgs` which means `func` has been
-    // debounced at least once.
-    if (trailing && lastArgs) {
-      return invokeFunc(time);
-    }
-    lastArgs = lastThis = undefined;
-    return result;
-  }
-
-  function cancel() {
-    if (timerId !== undefined) {
-      clearTimeout(timerId);
-    }
-    lastInvokeTime = 0;
-    lastArgs = lastCallTime = lastThis = timerId = undefined;
-  }
-
-  function flush() {
-    return timerId === undefined ? result : trailingEdge(now());
-  }
-
-  function debounced() {
-    var time = now(),
-        isInvoking = shouldInvoke(time);
-
-    lastArgs = arguments;
-    lastThis = this;
-    lastCallTime = time;
-
-    if (isInvoking) {
-      if (timerId === undefined) {
-        return leadingEdge(lastCallTime);
-      }
-      if (maxing) {
-        // Handle invocations in a tight loop.
-        timerId = setTimeout(timerExpired, wait);
-        return invokeFunc(lastCallTime);
-      }
-    }
-    if (timerId === undefined) {
-      timerId = setTimeout(timerExpired, wait);
-    }
-    return result;
-  }
-  debounced.cancel = cancel;
-  debounced.flush = flush;
-  return debounced;
-}
-
-module.exports = debounce;
 
 
 /***/ }),
@@ -11774,7 +11774,7 @@ module.exports = toNumber;
 
 var stringify = __webpack_require__(451);
 var parse = __webpack_require__(450);
-var formats = __webpack_require__(188);
+var formats = __webpack_require__(189);
 
 module.exports = {
     formats: formats,
@@ -12135,7 +12135,7 @@ var _channels = __webpack_require__(237);
 
 var _channels2 = _interopRequireDefault(_channels);
 
-var _jsonStringifySafe = __webpack_require__(212);
+var _jsonStringifySafe = __webpack_require__(213);
 
 var _jsonStringifySafe2 = _interopRequireDefault(_jsonStringifySafe);
 
@@ -14810,7 +14810,7 @@ var _isIterable2 = __webpack_require__(250);
 
 var _isIterable3 = _interopRequireDefault(_isIterable2);
 
-var _getIterator2 = __webpack_require__(196);
+var _getIterator2 = __webpack_require__(197);
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -25773,11 +25773,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = prefixer;
 
-var _staticData = __webpack_require__(210);
+var _staticData = __webpack_require__(211);
 
 var _staticData2 = _interopRequireDefault(_staticData);
 
-var _prefixProperty = __webpack_require__(211);
+var _prefixProperty = __webpack_require__(212);
 
 var _prefixProperty2 = _interopRequireDefault(_prefixProperty);
 
@@ -25785,43 +25785,43 @@ var _prefixValue = __webpack_require__(167);
 
 var _prefixValue2 = _interopRequireDefault(_prefixValue);
 
-var _cursor = __webpack_require__(201);
+var _cursor = __webpack_require__(202);
 
 var _cursor2 = _interopRequireDefault(_cursor);
 
-var _crossFade = __webpack_require__(200);
+var _crossFade = __webpack_require__(201);
 
 var _crossFade2 = _interopRequireDefault(_crossFade);
 
-var _filter = __webpack_require__(202);
+var _filter = __webpack_require__(203);
 
 var _filter2 = _interopRequireDefault(_filter);
 
-var _flex = __webpack_require__(203);
+var _flex = __webpack_require__(204);
 
 var _flex2 = _interopRequireDefault(_flex);
 
-var _flexboxOld = __webpack_require__(204);
+var _flexboxOld = __webpack_require__(205);
 
 var _flexboxOld2 = _interopRequireDefault(_flexboxOld);
 
-var _gradient = __webpack_require__(205);
+var _gradient = __webpack_require__(206);
 
 var _gradient2 = _interopRequireDefault(_gradient);
 
-var _imageSet = __webpack_require__(206);
+var _imageSet = __webpack_require__(207);
 
 var _imageSet2 = _interopRequireDefault(_imageSet);
 
-var _position = __webpack_require__(207);
+var _position = __webpack_require__(208);
 
 var _position2 = _interopRequireDefault(_position);
 
-var _sizing = __webpack_require__(208);
+var _sizing = __webpack_require__(209);
 
 var _sizing2 = _interopRequireDefault(_sizing);
 
-var _transition = __webpack_require__(209);
+var _transition = __webpack_require__(210);
 
 var _transition2 = _interopRequireDefault(_transition);
 
@@ -26539,7 +26539,7 @@ module.exports = baseAssign;
 /***/ (function(module, exports, __webpack_require__) {
 
 var copyObject = __webpack_require__(63),
-    keysIn = __webpack_require__(185);
+    keysIn = __webpack_require__(186);
 
 /**
  * The base implementation of `_.assignIn` without support for multiple sources
@@ -26562,7 +26562,7 @@ module.exports = baseAssignIn;
 /***/ (function(module, exports, __webpack_require__) {
 
 var Stack = __webpack_require__(169),
-    arrayEach = __webpack_require__(214),
+    arrayEach = __webpack_require__(215),
     assignValue = __webpack_require__(173),
     baseAssign = __webpack_require__(367),
     baseAssignIn = __webpack_require__(368),
@@ -26570,9 +26570,9 @@ var Stack = __webpack_require__(169),
     copyArray = __webpack_require__(386),
     copySymbols = __webpack_require__(387),
     copySymbolsIn = __webpack_require__(388),
-    getAllKeys = __webpack_require__(216),
-    getAllKeysIn = __webpack_require__(217),
-    getTag = __webpack_require__(218),
+    getAllKeys = __webpack_require__(217),
+    getAllKeysIn = __webpack_require__(218),
+    getTag = __webpack_require__(219),
     initCloneArray = __webpack_require__(397),
     initCloneByTag = __webpack_require__(398),
     initCloneObject = __webpack_require__(399),
@@ -26780,7 +26780,7 @@ module.exports = baseIsArguments;
 /* 372 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isFunction = __webpack_require__(184),
+var isFunction = __webpack_require__(185),
     isMasked = __webpack_require__(401),
     isObject = __webpack_require__(24),
     toSource = __webpack_require__(182);
@@ -27129,7 +27129,7 @@ module.exports = cloneDataView;
 
 var addMapEntry = __webpack_require__(364),
     arrayReduce = __webpack_require__(172),
-    mapToArray = __webpack_require__(219);
+    mapToArray = __webpack_require__(220);
 
 /** Used to compose bitmasks for cloning. */
 var CLONE_DEEP_FLAG = 1;
@@ -27180,7 +27180,7 @@ module.exports = cloneRegExp;
 
 var addSetEntry = __webpack_require__(365),
     arrayReduce = __webpack_require__(172),
-    setToArray = __webpack_require__(220);
+    setToArray = __webpack_require__(221);
 
 /** Used to compose bitmasks for cloning. */
 var CLONE_DEEP_FLAG = 1;
@@ -28520,7 +28520,7 @@ module.exports = stubFalse;
 /* 429 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var debounce = __webpack_require__(221),
+var debounce = __webpack_require__(183),
     isObject = __webpack_require__(24);
 
 /** Error message constants. */
@@ -29400,7 +29400,7 @@ module.exports = ReactPropTypesSecret;
 "use strict";
 
 
-var utils = __webpack_require__(189);
+var utils = __webpack_require__(190);
 
 var has = Object.prototype.hasOwnProperty;
 
@@ -29581,8 +29581,8 @@ module.exports = function (str, opts) {
 "use strict";
 
 
-var utils = __webpack_require__(189);
-var formats = __webpack_require__(188);
+var utils = __webpack_require__(190);
+var formats = __webpack_require__(189);
 
 var arrayPrefixGenerators = {
     brackets: function brackets(prefix) { // eslint-disable-line func-name-matching
@@ -30940,7 +30940,7 @@ var _utilDeprecate = __webpack_require__(668);
 
 var _utilDeprecate2 = _interopRequireDefault(_utilDeprecate);
 
-var _addonActions = __webpack_require__(193);
+var _addonActions = __webpack_require__(194);
 
 var _addonLinks = __webpack_require__(234);
 
@@ -31014,7 +31014,7 @@ var _init = __webpack_require__(734);
 
 var _init2 = _interopRequireDefault(_init);
 
-var _actions = __webpack_require__(194);
+var _actions = __webpack_require__(195);
 
 var _reducer = __webpack_require__(735);
 
@@ -33886,7 +33886,7 @@ var _ActionLogger = __webpack_require__(689);
 
 var _ActionLogger2 = _interopRequireDefault(_ActionLogger);
 
-var _ = __webpack_require__(193);
+var _ = __webpack_require__(194);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33993,7 +33993,7 @@ var _ActionLogger = __webpack_require__(691);
 
 var _ActionLogger2 = _interopRequireDefault(_ActionLogger);
 
-var _ = __webpack_require__(193);
+var _ = __webpack_require__(194);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34035,7 +34035,7 @@ var _addons = __webpack_require__(29);
 
 var _addons2 = _interopRequireDefault(_addons);
 
-var _jsonStringifySafe = __webpack_require__(212);
+var _jsonStringifySafe = __webpack_require__(213);
 
 var _jsonStringifySafe2 = _interopRequireDefault(_jsonStringifySafe);
 
@@ -34043,7 +34043,7 @@ var _v = __webpack_require__(1191);
 
 var _v2 = _interopRequireDefault(_v);
 
-var _ = __webpack_require__(193);
+var _ = __webpack_require__(194);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34715,7 +34715,7 @@ var _assign = __webpack_require__(59);
 
 var _assign2 = _interopRequireDefault(_assign);
 
-var _stringify = __webpack_require__(197);
+var _stringify = __webpack_require__(198);
 
 var _stringify2 = _interopRequireDefault(_stringify);
 
@@ -36534,7 +36534,7 @@ var _createClass3 = _interopRequireDefault(_createClass2);
 
 var _global = __webpack_require__(42);
 
-var _actions = __webpack_require__(194);
+var _actions = __webpack_require__(195);
 
 var _ = __webpack_require__(485);
 
@@ -36728,11 +36728,11 @@ exports.default = function (context) {
   };
 };
 
-var _key_events = __webpack_require__(195);
+var _key_events = __webpack_require__(196);
 
 var _key_events2 = _interopRequireDefault(_key_events);
 
-var _actions = __webpack_require__(194);
+var _actions = __webpack_require__(195);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -36753,7 +36753,7 @@ var _extends3 = _interopRequireDefault(_extends2);
 
 exports.default = reducer;
 
-var _actions = __webpack_require__(194);
+var _actions = __webpack_require__(195);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -37262,6 +37262,10 @@ var _pin = __webpack_require__(1059);
 
 var _pin2 = _interopRequireDefault(_pin);
 
+var _debounce = __webpack_require__(183);
+
+var _debounce2 = _interopRequireDefault(_debounce);
+
 var _TableHeader = __webpack_require__(787);
 
 var _TableHeader2 = _interopRequireDefault(_TableHeader);
@@ -37282,37 +37286,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 // import TableRowIndexes from '../TableRowIndexes';
 // import TableColumnIndexes from '../TableColumnIndexes';
-
-var flattenCols = function flattenCols(cols) {
-  var childrenCols = cols.reduce(function (acc, col) {
-    return acc.concat(col.get('children'));
-  }, _immutable2.default.List());
-
-  return _immutable2.default.List().push(cols).concat(childrenCols.size ? flattenCols(childrenCols) : []);
-};
-
-var getFields = function getFields(cols) {
-  return cols.reduce(function (acc, col) {
-    if (col.get('children').size) return acc.concat(getFields(col.get('children')));
-    return acc.push(col);
-  }, _immutable2.default.List());
-};
-
-var getHeadingsAndFields = function getHeadingsAndFields(columns) {
-  var freezedColumns = columns.filter(function (col) {
-    return col.get('freezed');
-  });
-  var unfreezedColumns = columns.filter(function (col) {
-    return !col.get('freezed');
-  });
-
-  return {
-    headings: flattenCols(unfreezedColumns),
-    freezedHeadings: flattenCols(freezedColumns),
-    fields: getFields(unfreezedColumns),
-    freezedFields: getFields(freezedColumns)
-  };
-};
 
 var getHeaderRowsCount = function getHeaderRowsCount(columns, groups) {
   var colGroups = columns.map(function (column) {
@@ -37370,7 +37343,9 @@ var Table = function (_React$Component) {
     _this.handleResizeEnd = _this.handleResizeEnd.bind(_this);
     _this.handleSelectCell = _this.handleSelectCell.bind(_this);
     _this.handleEditSelectedCell = _this.handleEditSelectedCell.bind(_this);
-    _this.handleScrollContent = _this.handleScrollContent.bind(_this);
+    _this.handleScrollContent = (0, _debounce2.default)(_this.handleScrollContent.bind(_this), 10);
+    _this.handleScrollFrozenContent = (0, _debounce2.default)(_this.handleScrollFrozenContent.bind(_this), 10);
+    _this.handleScrollHeader = (0, _debounce2.default)(_this.handleScrollHeader.bind(_this), 10);
     return _this;
   }
 
@@ -37443,18 +37418,38 @@ var Table = function (_React$Component) {
     }
   }, {
     key: 'handleScrollContent',
-    value: function handleScrollContent(e) {
-      var _e$currentTarget = e.currentTarget,
-          scrollLeft = _e$currentTarget.scrollLeft,
-          scrollTop = _e$currentTarget.scrollTop;
+    value: function handleScrollContent() {
+      var _contentNode = this.contentNode,
+          scrollLeft = _contentNode.scrollLeft,
+          scrollTop = _contentNode.scrollTop;
 
 
-      if (this.headingsNode) {
-        this.headingsNode.scrollLeft = scrollLeft;
+      if (this.headerNode) {
+        this.headerNode.scrollLeft = scrollLeft;
       }
 
-      if (this.freezedColsNode) {
-        this.freezedColsNode.scrollTop = scrollTop;
+      if (this.frozenContentNode) {
+        this.frozenContentNode.scrollTop = scrollTop;
+      }
+    }
+  }, {
+    key: 'handleScrollFrozenContent',
+    value: function handleScrollFrozenContent() {
+      var scrollTop = this.frozenContentNode.scrollTop;
+
+
+      if (this.contentNode) {
+        this.contentNode.scrollTop = scrollTop;
+      }
+    }
+  }, {
+    key: 'handleScrollHeader',
+    value: function handleScrollHeader() {
+      var scrollLeft = this.headerNode.scrollLeft;
+
+
+      if (this.contentNode) {
+        this.contentNode.scrollLeft = scrollLeft;
       }
     }
   }, {
@@ -37564,8 +37559,9 @@ var Table = function (_React$Component) {
             'div',
             {
               className: 'Table__head',
+              onScroll: this.handleScrollHeader,
               ref: function ref(node) {
-                _this2.headingsNode = node;
+                _this2.headerNode = node;
               }
             },
             _react2.default.createElement(_TableHeader2.default, {
@@ -37580,8 +37576,8 @@ var Table = function (_React$Component) {
           { className: 'Table__content-container' },
           _react2.default.createElement(
             'div',
-            { className: 'Table__content-feezed-cols', ref: function ref(node) {
-                return _this2.freezedColsNode = node;
+            { className: 'Table__content-feezed-cols', onScroll: this.handleScrollFrozenContent, ref: function ref(node) {
+                _this2.frozenContentNode = node;
               } },
             _react2.default.createElement(_TableBody2.default, {
               onChangeSelectRow: function onChangeSelectRow() {},
@@ -37595,7 +37591,9 @@ var Table = function (_React$Component) {
           ),
           _react2.default.createElement(
             'div',
-            { className: 'Table__content', onScroll: this.handleScrollContent },
+            { className: 'Table__content', onScroll: this.handleScrollContent, ref: function ref(node) {
+                _this2.contentNode = node;
+              } },
             _react2.default.createElement(_TableBody2.default, {
               columns: columns,
               rows: rows,
@@ -39528,7 +39526,7 @@ $export($export.S, 'Number', {
 
 var $export = __webpack_require__(11);
 // 19.1.2.3 / 15.2.3.7 Object.defineProperties(O, Properties)
-$export($export.S + $export.F * !__webpack_require__(18), 'Object', { defineProperties: __webpack_require__(198) });
+$export($export.S + $export.F * !__webpack_require__(18), 'Object', { defineProperties: __webpack_require__(199) });
 
 
 /***/ }),
@@ -40474,7 +40472,7 @@ module.exports = baseRange;
 /***/ (function(module, exports, __webpack_require__) {
 
 var constant = __webpack_require__(926),
-    defineProperty = __webpack_require__(215),
+    defineProperty = __webpack_require__(216),
     identity = __webpack_require__(222);
 
 /**
@@ -40652,7 +40650,7 @@ module.exports = flatRest;
 /***/ (function(module, exports, __webpack_require__) {
 
 var Symbol = __webpack_require__(58),
-    isArguments = __webpack_require__(183),
+    isArguments = __webpack_require__(184),
     isArray = __webpack_require__(22);
 
 /** Built-in value references. */
@@ -40940,7 +40938,7 @@ var arrayMap = __webpack_require__(171),
     copyObject = __webpack_require__(63),
     customOmitClone = __webpack_require__(911),
     flatRest = __webpack_require__(914),
-    getAllKeysIn = __webpack_require__(217);
+    getAllKeysIn = __webpack_require__(218);
 
 /** Used to compose bitmasks for cloning. */
 var CLONE_DEEP_FLAG = 1,
@@ -46812,11 +46810,11 @@ module.exports = {"groups":[{"key":"payee","title":"Payee"},{"key":"name","title
 /* 1247 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(192);
+__webpack_require__(193);
 __webpack_require__(685);
 module.exports = __webpack_require__(687);
 
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=preview.eae8570d9fc5591cc8d0.bundle.js.map
+//# sourceMappingURL=preview.0211280c2913ef66a78e.bundle.js.map
