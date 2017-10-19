@@ -36,7 +36,7 @@ class Table extends React.Component {
     });
 
     this.state = {
-      selectedCell: null,
+      selectedCell: undefined,
       resizing: {
         colIndex: null,
         rowIndex: null,
@@ -141,9 +141,9 @@ class Table extends React.Component {
     }
   }
 
-  handleSelectCell(colIndex, rowIndex) {
+  handleSelectCell(columnKey, rowKey) {
     this.setState({
-      selectedCell: { colIndex, rowIndex, editing: false },
+      selectedCell: { columnKey, rowKey, editing: false },
     });
   }
 
@@ -151,11 +151,11 @@ class Table extends React.Component {
     const { selectedCell } = this.state;
     if (!selectedCell) return;
 
-    const { colIndex, rowIndex, editing } = selectedCell;
+    const { columnKey, rowKey, editing } = selectedCell;
     if (editing) return;
 
     this.setState({
-      selectedCell: { colIndex, rowIndex, editing: true },
+      selectedCell: { columnKey, rowKey, editing: true },
     });
   }
 

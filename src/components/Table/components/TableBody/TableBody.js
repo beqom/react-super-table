@@ -111,37 +111,36 @@ class TableBody extends React.Component {
   }
 
   render() {
-    const { columns, rows, rowKey, selectedCell } = this.props;
+    const { columns, rows, rowKey, selectedCell = {} } = this.props;
 
-    const { colIndex, rowIndex, editing } = selectedCell || {};
-
-    const tbodies = rows.map((row, ri) => {
-      const tds = columns.map((column, ci) => {
-        const selected = colIndex === ci && rowIndex === ri;
-        const onSelect = () => this.props.onSelectCell(ci, ri);
-        const key = column.get('key');
+    const tbodies = rows.map(row => {
+      const rowKey = row.get(this.props.rowKey);
+      const tds = columns.map(column => {
+        const columnKey = column.get('key');
         const width = column.getIn(['layout', 'width']);
+        const selected = selectedCell.columnKey === columnKey && selectedCell.rowKey === rowKey;
+        const onSelect = () => this.props.onSelectCell(columnKey, rowKey);
 
         return (
           <td
-            key={key}
+            key={columnKey}
             className={classnames('TableBody__cell', { 'TableBody__cell--focused': selected })}
           >
             <TableCell
               selected={selected}
-              editing={selected && editing}
+              editing={selected && selectedCell.editing}
               onKeyDown={this.handleKeyPress}
               onClick={selected ? this.props.onEditSelectedCell : onSelect}
-              style={selected && editing ? {} : { width }}
+              style={selected && selectedCell.editing ? {} : { width }}
             >
-              {row.get(key)}
+              {row.get(columnKey)}
             </TableCell>
           </td>
         );
       });
 
       return (
-        <tr className="TableBody__row" key={row.get(rowKey)}>
+        <tr className="TableBody__row" key={rowKey}>
           {this.renderSelectRow()}
           {tds}
         </tr>
