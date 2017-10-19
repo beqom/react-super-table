@@ -15,9 +15,9 @@ const FORMATTERS = {
   PERCENTAGE: x => `${x * 100}%`,
 };
 
-const columns = Immutable.fromJS(data.columns).map(col => col.set('formatter', FORMATTERS[col.get('formatter')]));
-const rows = Immutable.fromJS(data.rows);
-const groups = Immutable.fromJS(data.groups);
+const columns = Immutable.fromJS(data.columns).map(col => col.set('formatter', FORMATTERS[col.get('formatter')])).toJS();
+const rows = data.rows;
+const groups = data.groups;
 
 storiesOf('Table', module)
   .addDecorator(withReadme(README))

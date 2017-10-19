@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import throttle from 'lodash/throttle';
 import Immutable from 'immutable';
 import classnames from 'classnames';
@@ -28,7 +29,7 @@ class Table extends React.Component {
   constructor(props) {
     super(props);
 
-    const columns = this.props.columns.sort((a, b) => {
+    this.columns = Immutable.fromJS(this.props.columns).sort((a, b) => {
       if (a.order < b.order) return -1
       if (a.order > b.order) return 1;
       return 0;
@@ -44,9 +45,10 @@ class Table extends React.Component {
         mouseY: null,
         containerBox: null,
       },
-      frozenColumns: columns.filter(c => c.getIn(['layout', 'frozen'])),
-      columns: columns.filter(c => !c.getIn(['layout', 'frozen'])),
-      rows: this.props.rows,
+      frozenColumns: this.columns.filter(c => c.getIn(['layout', 'frozen'])),
+      columns: this.columns.filter(c => !c.getIn(['layout', 'frozen'])),
+      rows: Immutable.fromJS(this.props.rows),
+      groups: Immutable.fromJS(this.props.groups),
     };
 
     this.handleResizeStart = this.handleResizeStart.bind(this);
@@ -188,10 +190,10 @@ class Table extends React.Component {
   }
 
   render() {
-    const { groups, rowKey } = this.props;
-    const { rows, columns, frozenColumns } = this.state;
+    const { rowKey } = this.props;
+    const { groups, rows, columns, frozenColumns } = this.state;
 
-    const headerRowsCount = getHeaderRowsCount(this.props.columns, groups) + 1;
+    const headerRowsCount = getHeaderRowsCount(this.columns, groups) + 1;
 
     return (
       <div
@@ -297,5 +299,32 @@ class Table extends React.Component {
     );
   }
 }
+
+Table.displayName = "Table";
+
+Table.propTypes = {
+  groups: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    group: PropTypes.string,
+  })).isRequired,
+  columns: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    order: PropTypes.number.isRequired,
+    dataType: PropTypes.string.isRequired,
+    layout: PropTypes.shape({
+      visible: PropTypes.bool.isRequired,
+      frozen: PropTypes.bool.isRequired,
+      width: PropTypes.number.isRequired,
+    }).isRequired,
+    editable: PropTypes.bool.isRequired,
+    formula: PropTypes.string,
+    formatter: PropTypes.func,
+    group: PropTypes.string,
+    editorType: PropTypes.string,
+  })).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+};
 
 export default Table;
