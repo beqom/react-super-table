@@ -10,7 +10,7 @@
     "lint:script": "eslint .",
     "lint": "npm run lint:script && npm run lint:style",
     "clean:storybook": "rimraf build/storybook",
-    "prebuild:storybook": "npm run clean:storybook && npm run lint",
+    "prebuild:storybook": "npm run clean:storybook",
     "build:storybook": "build-storybook -c .storybook -o build/storybook",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "predeploy": "npm run build",
