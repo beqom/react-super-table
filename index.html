@@ -1,1 +1,46 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name="theme-color" content="#000000"><link rel="manifest" href="/react-super-table/manifest.json"><link rel="shortcut icon" href="/react-super-table/favicon.ico"><title>React App</title><link href="/react-super-table/static/css/main.6d47d4a3.css" rel="stylesheet"></head><body><div id="root"></div><script type="text/javascript" src="/react-super-table/static/js/main.61a5960b.js"></script></body></html>
+
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="storybook-version" content="3.1.6">
+        <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+        <title>Storybook</title>
+        <style>
+          /*
+            When resizing panels, the drag event breaks if the cursor
+            moves over the iframe. Add the 'dragging' class to the body
+            at drag start and remove it when the drag ends.
+           */
+          .dragging iframe {
+            pointer-events: none;
+          }
+
+          /* Styling the fuzzy search box placeholders */
+          .searchBox::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+            color: #ddd;
+            font-size: 16px;
+          }
+
+          .searchBox::-moz-placeholder { /* Firefox 19+ */
+            color: #ddd;
+            font-size: 16px;
+          }
+
+          .searchBox:focus{
+            border-color: #EEE !important;
+          }
+
+          .btn:hover{
+            background-color: #eee
+          }
+        </style>
+        
+      </head>
+      <body style="margin: 0;">
+        <div id="root"></div>
+        <script src="static/manager.e086e0b6d60e96709312.bundle.js"></script>
+      </body>
+    </html>
+  
