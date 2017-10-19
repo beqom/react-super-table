@@ -504,3 +504,95 @@
 
 
 2017-10-04T07:12:44.895Z - error:  [74728] Could not find a workspace with mappings (e.g., not a TFVC repository, wrong version of TF is being used). An argument error occurred: The workspace could not be determined from any argument paths or the current working directory.
+2017-10-18T08:27:13.105Z - info:   [06756] *** FOLDER: /Users/renaudtertrais/beqom/react-table ***
+2017-10-18T08:27:13.107Z - info:   [06756] VSTSVSCode/1.122.0 (VSCode 1.17.1; Darwin 16.7.0; Node 7.9.0)
+2017-10-18T08:27:13.109Z - debug:  [06756] Looking for an External Context at /Users/renaudtertrais/beqom/react-table
+2017-10-18T08:27:13.109Z - debug:  [06756] No External Context at /Users/renaudtertrais/beqom/react-table
+2017-10-18T08:27:13.159Z - debug:  [06756] Looking for TFVC repository at /Users/renaudtertrais/beqom/react-table
+2017-10-18T08:27:13.164Z - debug:  [06756] TFVC Creating Tfvc object with localPath='undefined'
+2017-10-18T08:27:13.166Z - debug:  [06756] Using TFS proxy: 
+2017-10-18T08:27:13.167Z - debug:  [06756] TFVC Retrieved from settings; localPath='/Users/renaudtertrais/TEE-CLC-14.114.0/tf'
+2017-10-18T08:27:13.168Z - debug:  [06756] TFVC Repository created with repositoryRootFolder='/Users/renaudtertrais/beqom/react-table'
+2017-10-18T08:27:13.170Z - debug:  [06756] TFVC Repository.CheckVersion
+2017-10-18T08:27:13.174Z - debug:  [06756] TFVC: tf add -noprompt -?
+2017-10-18T08:27:13.188Z - debug:  [06756] TFVC: spawned new process (duration: 12ms)
+2017-10-18T08:27:13.197Z - debug:  [06756] TFVC: spawned new process (duration: 8ms)
+2017-10-18T08:27:16.352Z - debug:  [06756] TFVC: add exit code: 0 (duration: 3176ms)
+2017-10-18T08:27:16.353Z - debug:  [06756] TFVC Minimum required version: 14.0.4
+2017-10-18T08:27:16.353Z - debug:  [06756] TFVC (TF.exe, TF.cmd) version: 14.114.0.201703081734
+2017-10-18T08:27:16.354Z - debug:  [06756] TFVC Repository.FindWorkspace with localPath='/Users/renaudtertrais/beqom/react-table'
+2017-10-18T08:27:16.355Z - debug:  [06756] TFVC: tf workfold -noprompt ********
+2017-10-18T08:27:16.359Z - debug:  [06756] TFVC: spawned new process (duration: 4ms)
+2017-10-18T08:27:16.600Z - debug:  [06756] TFVC: workfold exit code: 100 (duration: 245ms)
+2017-10-18T08:27:16.602Z - debug:  [06756] TFVC errors (via stderr): An argument error occurred: The workspace could not be determined from any argument paths or the current working directory.
+
+2017-10-18T08:27:16.602Z - debug:  [06756] TFVC errors (via stdout): Team Explorer Everywhere Command Line Client (version 14.114.0.201703081734)
+
+ workfold command:
+
+  Creates, modifies, or displays information about the mappings between your
+  workspace folders and the source control server folders to which they
+  correspond.
+
+ Valid option sets:
+
+  workfold [-collection:<url>] [-workspace:<value>] <serverFolder>
+  workfold [-map] [-collection:<url>] [-workspace:<value>] <serverFolder>
+           <localFolder>
+  workfold [-workspace:<value>]
+  workfold <localFolder>
+  workfold -cloak [-collection:<url>] [-workspace:<value>]
+           <serverFolder>|<localFolder>
+  workfold -decloak [-collection:<url>] [-workspace:<value>]
+           <serverFolder>|<localFolder>
+  workfold -unmap [-collection:<url>] [-workspace:<value>]
+           <serverFolder>|<localFolder>
+
+
+2017-10-18T08:27:16.603Z - error:  [06756] Could not find a workspace with mappings (e.g., not a TFVC repository, wrong version of TF is being used). An argument error occurred: The workspace could not be determined from any argument paths or the current working directory.
+2017-10-18T11:50:16.248Z - info:   [07916] *** FOLDER: /Users/renaudtertrais/beqom/react-table ***
+2017-10-18T11:50:16.250Z - info:   [07916] VSTSVSCode/1.122.0 (VSCode 1.17.2; Darwin 16.7.0; Node 7.9.0)
+2017-10-18T11:50:16.251Z - debug:  [07916] Looking for an External Context at /Users/renaudtertrais/beqom/react-table
+2017-10-18T11:50:16.251Z - debug:  [07916] No External Context at /Users/renaudtertrais/beqom/react-table
+2017-10-18T11:50:16.257Z - debug:  [07916] Looking for TFVC repository at /Users/renaudtertrais/beqom/react-table
+2017-10-18T11:50:16.258Z - debug:  [07916] TFVC Creating Tfvc object with localPath='undefined'
+2017-10-18T11:50:16.258Z - debug:  [07916] Using TFS proxy: 
+2017-10-18T11:50:16.259Z - debug:  [07916] TFVC Retrieved from settings; localPath='/Users/renaudtertrais/TEE-CLC-14.114.0/tf'
+2017-10-18T11:50:16.259Z - debug:  [07916] TFVC Repository created with repositoryRootFolder='/Users/renaudtertrais/beqom/react-table'
+2017-10-18T11:50:16.260Z - debug:  [07916] TFVC Repository.CheckVersion
+2017-10-18T11:50:16.261Z - debug:  [07916] TFVC: tf add -noprompt -?
+2017-10-18T11:50:16.266Z - debug:  [07916] TFVC: spawned new process (duration: 4ms)
+2017-10-18T11:50:16.271Z - debug:  [07916] TFVC: spawned new process (duration: 4ms)
+2017-10-18T11:50:17.978Z - debug:  [07916] TFVC: add exit code: 0 (duration: 1716ms)
+2017-10-18T11:50:17.980Z - debug:  [07916] TFVC Minimum required version: 14.0.4
+2017-10-18T11:50:17.980Z - debug:  [07916] TFVC (TF.exe, TF.cmd) version: 14.114.0.201703081734
+2017-10-18T11:50:17.980Z - debug:  [07916] TFVC Repository.FindWorkspace with localPath='/Users/renaudtertrais/beqom/react-table'
+2017-10-18T11:50:17.981Z - debug:  [07916] TFVC: tf workfold -noprompt ********
+2017-10-18T11:50:17.984Z - debug:  [07916] TFVC: spawned new process (duration: 3ms)
+2017-10-18T11:50:18.332Z - debug:  [07916] TFVC: workfold exit code: 100 (duration: 351ms)
+2017-10-18T11:50:18.334Z - debug:  [07916] TFVC errors (via stderr): An argument error occurred: The workspace could not be determined from any argument paths or the current working directory.
+
+2017-10-18T11:50:18.334Z - debug:  [07916] TFVC errors (via stdout): Team Explorer Everywhere Command Line Client (version 14.114.0.201703081734)
+
+ workfold command:
+
+  Creates, modifies, or displays information about the mappings between your
+  workspace folders and the source control server folders to which they
+  correspond.
+
+ Valid option sets:
+
+  workfold [-collection:<url>] [-workspace:<value>] <serverFolder>
+  workfold [-map] [-collection:<url>] [-workspace:<value>] <serverFolder>
+           <localFolder>
+  workfold [-workspace:<value>]
+  workfold <localFolder>
+  workfold -cloak [-collection:<url>] [-workspace:<value>]
+           <serverFolder>|<localFolder>
+  workfold -decloak [-collection:<url>] [-workspace:<value>]
+           <serverFolder>|<localFolder>
+  workfold -unmap [-collection:<url>] [-workspace:<value>]
+           <serverFolder>|<localFolder>
+
+
+2017-10-18T11:50:18.335Z - error:  [07916] Could not find a workspace with mappings (e.g., not a TFVC repository, wrong version of TF is being used). An argument error occurred: The workspace could not be determined from any argument paths or the current working directory.

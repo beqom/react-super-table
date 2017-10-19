@@ -1,0 +1,179 @@
+@import "../../style/inc";
+
+.Table {
+  max-width: 100%;
+  margin: auto;
+  height: 100%;
+  border: 1px solid #ccc;
+  border-top: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+
+.Table__head-container {
+  display: flex;
+  border-bottom: 2px solid #ccc;
+}
+
+.Table__head-freezed-cols {
+  display: flex;
+}
+
+.Table__head-freezed-cols,
+.Table__content-feezed-cols {
+  border-right: 3px solid #ccc;
+}
+
+.Table__head-rows-index {
+  height: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.Table__head {
+  flex: 1;
+  overflow: auto;
+}
+
+.Table__content-container {
+  flex: 1;
+  display: flex;
+}
+
+.Table__content-feezed-cols {
+  overflow: auto;
+  display: flex;
+}
+
+.Table__content {
+  flex: 1;
+  overflow: auto;
+}
+
+
+
+
+
+
+.Table__resize-col-helper {
+  border-right: 1px solid dodgerblue;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 20;
+}
+
+.Table__resize-col-helper:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 5px;
+  background: dodgerblue;
+  height: 17px;
+  left: -2px;
+}
+
+.Table__resize-row-helper {
+  border-bottom: 1px solid dodgerblue;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 20;
+}
+
+.Table__resize-row-helper:before {
+  content: "";
+  position: absolute;
+  left:0 ;
+  width: 2em;
+  background: dodgerblue;
+  height: 5px;
+  top: -2px;
+}
+
+
+
+.Table__header-cell {
+  position: relative;
+}
+
+
+.Table__header-pin-button {
+  border: 0;
+  background: transparent;
+  color: #888;
+  position: absolute;
+  left: 5px;
+  display: none;
+}
+
+.Table__header-cell:hover .Table__header-pin-button{
+  display: block;
+}
+
+
+
+
+.cell {
+  overflow: hidden;
+  padding: 1px 2px;
+  overflow: hidden;
+  cursor: default;
+}
+
+.frame-cell {
+  background: white;
+  border-color: #ccc;
+  position: relative;
+}
+
+.frame-cell.focused {
+  background: dodgerblue;
+  color: white;
+}
+
+.frame-resize-handle {
+  position: absolute;
+  background: dodgerblue;
+  z-index: 20;
+  opacity: 0;
+}
+
+.frame-resize-handle--cols {
+  height: 100%;
+  width: 5px;
+  top: 0;
+  right: -4px;
+  cursor: col-resize;
+}
+
+.frame-resize-handle--rows {
+  width: 100%;
+  height: 5px;
+  background: dodgerblue;
+  left: 0;
+  bottom: -4px;
+  cursor: row-resize;
+}
+
+.frame-resize-handle:hover {
+  opacity: 1;
+}
+
+.frame-resize-handle:active {
+  opacity: 0;
+}
+
+
+.frame-cell-0 {
+  border: 0;
+  background: transparent;
+}
+
+td.focused {
+  padding: 0;
+  overflow: visible;
+  position: relative;
+}

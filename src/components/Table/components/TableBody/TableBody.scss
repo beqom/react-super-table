@@ -1,0 +1,31 @@
+@import "../../../../style/inc";
+
+.TableBody {
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+
+.TableBody__cell {
+  border-bottom: 1px solid #ccc;
+
+  .TableBody__row:last-child & {
+    border-bottom: 0;
+  }
+}
+
+.TableBody__cell:not(:first-child) {
+  padding-left: 1px;
+}
+
+.TableBody__cell--focused {
+  padding: 0;
+  overflow: visible;
+  position: relative;
+}
+
+.TableBody__cell-content {
+  white-space: pre;
+  text-overflow: ellipsis;
+  padding: 10px 5px;
+}

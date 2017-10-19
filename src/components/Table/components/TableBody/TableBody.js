@@ -1,8 +1,11 @@
-import React from "react";
-import get from "lodash/get";
-import classnames from "classnames";
+import React from 'react';
+import classnames from 'classnames';
+import get from 'lodash/get';
+import PropTypes from 'prop-types';
 
-import TableCell from './TableCell';
+import TableCell from '../TableCell';
+
+import './TableBody.scss';
 
 class TableBody extends React.Component {
   constructor(props) {
@@ -16,11 +19,11 @@ class TableBody extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    if(this.props.fields !== nextProps.fields) return true;
-    if(this.props.rows !== nextProps.rows) return true;
-    if(this.props.selectedCell !== nextProps.selectedCell) return true;
-    if(this.props.colsWidth !== nextProps.colsWidth) return true;
-    if(this.props.rowsHeight !== nextProps.rowsHeight) return true;
+    if (this.props.fields !== nextProps.fields) return true;
+    if (this.props.rows !== nextProps.rows) return true;
+    if (this.props.selectedCell !== nextProps.selectedCell) return true;
+    if (this.props.colsWidth !== nextProps.colsWidth) return true;
+    if (this.props.rowsHeight !== nextProps.rowsHeight) return true;
     return false;
   }
 
@@ -29,20 +32,20 @@ class TableBody extends React.Component {
     if (!selectedCell) return;
 
     switch (e.key) {
-      case "ArrowUp":
+      case 'ArrowUp':
         return this.selectCellAbove(e);
-      case "ArrowDown":
+      case 'ArrowDown':
         return this.selectCellBelow(e);
-      case "ArrowLeft":
+      case 'ArrowLeft':
         return this.selectCellLeft(e);
-      case "ArrowRight":
+      case 'ArrowRight':
         return this.selectCellRight(e);
 
-      case "Tab": {
+      case 'Tab': {
         if (e.shiftKey) return this.selectCellLeft(e);
         return this.selectCellRight(e);
       }
-      case "Enter": {
+      case 'Enter': {
         e.preventDefault();
         if (selectedCell.editing) return this.selectCellBelow();
         return this.props.onEditSelectedCell();
@@ -90,57 +93,76 @@ class TableBody extends React.Component {
     if (e) e.preventDefault();
 
     const selectedCell = this.props.selectedCell || {};
-    if (
-      colIndex === selectedCell.colIndex &&
-      rowIndex === selectedCell.rowIndex
-    )
-      return;
+    if (colIndex === selectedCell.colIndex && rowIndex === selectedCell.rowIndex) return;
 
     this.props.onSelectCell(colIndex, rowIndex);
   }
 
+  renderSelectRow() {
+    if (!this.props.onChangeSelectRow) return null;
+
+    return (
+      <th className="TableBody__cell">
+        <div className="TableBody__cell-content">
+          <input type="checkbox" onChange={this.props.onChangeSelectRow} />
+        </div>
+      </th>
+    );
+  }
+
   render() {
-    const { fields, rows, keyPath, colsWidth, rowsHeight, selectedCell, startAt } = this.props;
+    const { columns, rows, rowKey, selectedCell } = this.props;
 
     const { colIndex, rowIndex, editing } = selectedCell || {};
 
     const tbodies = rows.map((row, ri) => {
-      const tds = fields.map((field, i) => {
-        const ci = startAt + i;
+      const tds = columns.map((column, ci) => {
         const selected = colIndex === ci && rowIndex === ri;
         const onSelect = () => this.props.onSelectCell(ci, ri);
-        const style = { width: colsWidth.get(ci), height: rowsHeight.get(ri) };
+        const key = column.get('key');
+        const width = column.getIn(['layout', 'width']);
 
         return (
           <td
-            key={field.get('path').join('.')}
-            className={classnames({ focused: selected })}
-            style={style}
+            key={key}
+            className={classnames('TableBody__cell', { 'TableBody__cell--focused': selected })}
           >
             <TableCell
               selected={selected}
               editing={selected && editing}
               onKeyDown={this.handleKeyPress}
-              onClick={selected ? this.props.onEditSelectedCell : onSelect }
-              style={selected && editing ? {} : style}
+              onClick={selected ? this.props.onEditSelectedCell : onSelect}
+              style={selected && editing ? {} : { width }}
             >
-              {row.getIn(field.get('path'))}
+              {row.get(key)}
             </TableCell>
           </td>
         );
       });
 
-      return <tr key={row.getIn(keyPath)}>{tds}</tr>;
+      return (
+        <tr className="TableBody__row" key={row.get(rowKey)}>
+          {this.renderSelectRow()}
+          {tds}
+        </tr>
+      );
     });
 
     return (
-
-      <table>
+      <table className="TableBody">
         <tbody>{tbodies}</tbody>
       </table>
-
     );
   }
 }
+
+TableBody.displayName = 'TableBody';
+
+TableBody.defaultProps = {};
+
+TableBody.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.any,
+};
 
 export default TableBody;

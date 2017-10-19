@@ -1,19 +1,22 @@
-import React from "react";
-import throttle from "lodash/throttle";
+import React from 'react';
+import throttle from 'lodash/throttle';
 import Immutable from 'immutable';
 import classnames from 'classnames';
 import IconPin from 'react-icons/lib/go/pin';
 
-import TableBody from "./TableBody";
-import TableRowIndexes from "./TableRowIndexes";
-import TableColumnIndexes from "./TableColumnIndexes";
+// import TableRowIndexes from '../TableRowIndexes';
+// import TableColumnIndexes from '../TableColumnIndexes';
+
+import TableHeader from './components/TableHeader';
+import TableBody from './components/TableBody';
+import './Table.scss';
 
 const flattenCols = cols => {
   const childrenCols = cols.reduce((acc, col) => acc.concat(col.get('children')), Immutable.List());
 
   return Immutable.List()
     .push(cols)
-    .concat((childrenCols.size ? flattenCols(childrenCols) : []));
+    .concat(childrenCols.size ? flattenCols(childrenCols) : []);
 };
 
 const getFields = cols =>
@@ -21,8 +24,6 @@ const getFields = cols =>
     if (col.get('children').size) return acc.concat(getFields(col.get('children')));
     return acc.push(col);
   }, Immutable.List());
-
-
 
 const getHeadingsAndFields = columns => {
   const freezedColumns = columns.filter(col => col.get('freezed'));
@@ -34,27 +35,31 @@ const getHeadingsAndFields = columns => {
     fields: getFields(unfreezedColumns),
     freezedFields: getFields(freezedColumns),
   };
-}
+};
 
+const getHeaderRowsCount = (columns, groups) => {
+  const colGroups = columns
+    .map(column => column.get('group'))
+    .filter((key, i, arr) => !!key && arr.indexOf(key) === i)
+    .map(key => groups.find(g => g.get('key') === key))
+    .filter(g => !!g);
+  if (colGroups.size) {
+    return 1 + getHeaderRowsCount(colGroups, groups);
+  }
+  return 0;
+};
 
 class Table extends React.Component {
   constructor(props) {
     super(props);
 
-    const columns = props.columns.setIn([1, 'freezed'], true);
-
-    const {
-      headings,
-      freezedHeadings,
-      fields,
-      freezedFields,
-    } = getHeadingsAndFields(columns);
+    const columns = this.props.columns.sort((a, b) => {
+      if (a.order < b.order) return -1
+      if (a.order > b.order) return 1;
+      return 0;
+    });
 
     this.state = {
-      headings,
-      freezedHeadings,
-      fields,
-      freezedFields,
       selectedCell: null,
       resizing: {
         colIndex: null,
@@ -62,10 +67,11 @@ class Table extends React.Component {
         handleBox: null,
         mouseX: null,
         mouseY: null,
-        containerBox: null
+        containerBox: null,
       },
-      rowsHeight: props.rows.map(row => 18),
-      colsWidth: freezedFields.concat(fields).map(field => 120),
+      frozenColumns: columns.filter(c => c.getIn(['layout', 'frozen'])),
+      columns: columns.filter(c => !c.getIn(['layout', 'frozen'])),
+      rows: this.props.rows,
     };
 
     this.handleResizeStart = this.handleResizeStart.bind(this);
@@ -76,7 +82,9 @@ class Table extends React.Component {
     this.handleScrollContent = this.handleScrollContent.bind(this);
   }
 
-  handleResizeStart({ colIndex, rowIndex, handleBox, mouseX, mouseY }) {
+  handleResizeStart({
+    colIndex, rowIndex, handleBox, mouseX, mouseY,
+  }) {
     const containerBox = this.containerNode.getBoundingClientRect();
     this.setState(() => ({
       resizing: {
@@ -88,7 +96,7 @@ class Table extends React.Component {
         containerBox,
         startX: mouseX,
         startY: mouseY,
-      }
+      },
     }));
   }
 
@@ -101,7 +109,9 @@ class Table extends React.Component {
 
   handleResizeEnd(mouseX, mouseY) {
     const { colsWidth, rowsHeight, resizing } = this.state;
-    const { colIndex, rowIndex, startX, startY } = resizing;
+    const {
+      colIndex, rowIndex, startX, startY,
+    } = resizing;
 
     // resizing columns
     if (!isNaN(colIndex)) {
@@ -120,7 +130,7 @@ class Table extends React.Component {
     }
 
     this.setState({
-      resizing: {}
+      resizing: {},
     });
   }
 
@@ -138,7 +148,7 @@ class Table extends React.Component {
 
   handleSelectCell(colIndex, rowIndex) {
     this.setState({
-      selectedCell: { colIndex, rowIndex, editing: false }
+      selectedCell: { colIndex, rowIndex, editing: false },
     });
   }
 
@@ -157,102 +167,54 @@ class Table extends React.Component {
   renderResizeColsHelper() {
     const { colsWidth, resizing } = this.state;
     const {
-      colIndex,
-      mouseX,
-      startX,
-      handleBox,
-      containerBox
+      colIndex, mouseX, startX, handleBox, containerBox,
     } = resizing;
     if (!colIndex && colIndex !== 0) return null;
 
     const mouseOffsetX = startX - (handleBox.left + handleBox.width / 2);
-    const columnLeft =  handleBox.left + handleBox.width / 2 - colsWidth.get(colIndex) - containerBox.left;
-    const left = Math.max(
-      mouseX + mouseOffsetX - containerBox.left,
-      columnLeft + 10
-    );
+    const columnLeft =
+      handleBox.left + handleBox.width / 2 - colsWidth.get(colIndex) - containerBox.left;
+    const left = Math.max(mouseX + mouseOffsetX - containerBox.left, columnLeft + 10);
 
-    return <div className="table-resize-col-helper" style={{ left }} />;
+    return <div className="Table__resize-col-helper" style={{ left }} />;
   }
 
   renderResizeRowsHelper() {
     const { rowsHeight, resizing } = this.state;
     const {
-      rowIndex,
-      mouseY,
-      startY,
-      handleBox,
-      containerBox
+      rowIndex, mouseY, startY, handleBox, containerBox,
     } = resizing;
     if (!rowIndex && rowIndex !== 0) return null;
 
     const mouseOffsetY = startY - (handleBox.top + handleBox.height / 2);
-    const rowTop =  handleBox.top + handleBox.height / 2 - rowsHeight.get(rowIndex) - containerBox.top;
-    const top = Math.max(
-      mouseY + mouseOffsetY - containerBox.top,
-      rowTop + 10
-    );
+    const rowTop =
+      handleBox.top + handleBox.height / 2 - rowsHeight.get(rowIndex) - containerBox.top;
+    const top = Math.max(mouseY + mouseOffsetY - containerBox.top, rowTop + 10);
 
-    return <div className="table-resize-row-helper" style={{ top }} />;
-  }
-
-  addToFreezedCols(column) {
-
+    return <div className="Table__resize-row-helper" style={{ top }} />;
   }
 
   render() {
-    const { rows, keyPath } = this.props;
-    const { headings, freezedHeadings, fields, freezedFields } = this.state;
-    const theads = headings.map((cols, rowIndex) => {
-      const ths = cols.map(col => (
-        <th
-          key={col.get('key')}
-          className="table-header-cell"
-          colSpan={col.get('maxChildrenLength')}
-          rowSpan={col.get('maxChildrenLength') ? 0 : headings.size - rowIndex}
-        >
-          <button className={classnames('table-header-pin-button')} onClick={() => this.addToFreezedCols(col)}>
-            <IconPin />
-          </button>
-          {col.get('name')}
-        </th>
-      ));
+    const { groups, rowKey } = this.props;
+    const { rows, columns, frozenColumns } = this.state;
 
-      return <tr key={rowIndex}>{ths}</tr>;
-    });
-
-    const theadsFreezed = freezedHeadings.map((cols, rowIndex) => {
-      const ths = cols.map(col => (
-        <th
-          key={col.get('key')}
-          className="table-header-cell"
-          colSpan={col.get('maxChildrenLength')}
-          rowSpan={col.get('maxChildrenLength') ? 0 : headings.size - rowIndex}
-        >
-          <button className={classnames('table-header-pin-button')} onClick={() => this.addToFreezedCols(col)}>
-            <IconPin />
-          </button>
-          {col.get('name')}
-        </th>
-      ));
-
-      return <tr key={rowIndex}>{ths}</tr>;
-    });
+    const headerRowsCount = getHeaderRowsCount(this.props.columns, groups) + 1;
 
     return (
       <div
-        className="table-container"
-        ref={node => (this.containerNode = node)}
+        className="Table"
+        ref={node => {
+          this.containerNode = node;
+        }}
       >
         {this.renderResizeRowsHelper()}
         {this.renderResizeColsHelper()}
-        <div className="table-head-container">
-          <div className="table-head-freezed-cols">
-            <div className="table-head-rows-index">
-              <div style={{ width: `${`${rows.size}`.length}em`, margin: 1 }} />
-            </div>
+        <div className="Table__head-container">
+          <div className="Table__head-freezed-cols">
+            {/*
             <table>
               <thead>
+
                 <TableColumnIndexes
                   columns={freezedFields}
                   selectedCellColIndex={(this.state.selectedCell || {}).colIndex}
@@ -260,12 +222,26 @@ class Table extends React.Component {
                   onResize={this.handleResize}
                   onResizeEnd={this.handleResizeEnd}
                   colsWidth={this.state.colsWidth}
-                  />
+                />
+
                 {theadsFreezed}
               </thead>
             </table>
+            */}
+            <TableHeader
+              onChangeSelectAllRows={() => {}}
+              columns={frozenColumns}
+              groups={groups}
+              headerRowsCount={headerRowsCount}
+            />
           </div>
-          <div className="table-head" ref={node => (this.headingsNode = node)}>
+          <div
+            className="Table__head"
+            ref={node => {
+              this.headingsNode = node;
+            }}
+          >
+            {/*
             <table>
               <thead>
                 <TableColumnIndexes
@@ -276,18 +252,22 @@ class Table extends React.Component {
                   onResize={this.handleResize}
                   onResizeEnd={this.handleResizeEnd}
                   colsWidth={this.state.colsWidth}
-                  />
+                />
                 {theads}
               </thead>
             </table>
+            */}
+            <TableHeader
+              columns={columns}
+              groups={groups}
+              headerRowsCount={headerRowsCount}
+            />
           </div>
         </div>
 
-        <div className="table-content-container">
-          <div
-            className="table-content-feezed-cols"
-            ref={node => (this.freezedColsNode = node)}
-          >
+        <div className="Table__content-container">
+          <div className="Table__content-feezed-cols" ref={node => (this.freezedColsNode = node)}>
+            {/*
             <TableRowIndexes
               rows={rows}
               selectedCellRowIndex={(this.state.selectedCell || {}).rowIndex}
@@ -297,27 +277,23 @@ class Table extends React.Component {
               rowsHeight={this.state.rowsHeight}
               keyPath={keyPath}
             />
+            */}
             <TableBody
-              startAt={0}
-              fields={freezedFields}
+              onChangeSelectRow={() => {}}
+              columns={frozenColumns}
               rows={rows}
-              keyPath={keyPath}
+              rowKey={rowKey}
               selectedCell={this.state.selectedCell}
-              colsWidth={this.state.colsWidth}
-              rowsHeight={this.state.rowsHeight}
               onSelectCell={this.handleSelectCell}
               onEditSelectedCell={this.handleEditSelectedCell}
             />
           </div>
-          <div className="table-content" onScroll={this.handleScrollContent}>
+          <div className="Table__content" onScroll={this.handleScrollContent}>
             <TableBody
-              startAt={freezedFields.size}
-              fields={fields}
+              columns={columns}
               rows={rows}
-              keyPath={keyPath}
+              rowKey={rowKey}
               selectedCell={this.state.selectedCell}
-              colsWidth={this.state.colsWidth}
-              rowsHeight={this.state.rowsHeight}
               onSelectCell={this.handleSelectCell}
               onEditSelectedCell={this.handleEditSelectedCell}
             />
@@ -329,4 +305,3 @@ class Table extends React.Component {
 }
 
 export default Table;
-
