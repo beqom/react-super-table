@@ -11,11 +11,22 @@ import README from './README.md';
 import data from './data.json';
 
 const FORMATTERS = {
-  CURRENCY: x => `$ ${x.toFixed(2)}`,
+  CURRENCY: x => `$ ${parseFloat(x, 10).toFixed(2)}`,
   PERCENTAGE: x => `${x * 100}%`,
+  IDENTITY: x => x,
 };
 
-const columns = Immutable.fromJS(data.columns).map(col => col.set('formatter', FORMATTERS[col.get('formatter')])).toJS();
+const PARSERS = {
+  NUMBER: x => parseFloat(x, 10),
+  IDENTITY: x => x,
+};
+
+const columns = Immutable.fromJS(data.columns)
+  .map(col => col
+    .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
+    .set('parser', FORMATTERS[col.get('parser') || 'IDENTITY'])
+  )
+  .toJS();
 const rows = data.rows;
 const groups = data.groups;
 

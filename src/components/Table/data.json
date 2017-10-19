@@ -46,7 +46,7 @@
       "title": "Age",
       "order": 4,
       "dataType": "number",
-      "layout": { "visible": true, "frozen": false, "width": 30 },
+      "layout": { "visible": true, "frozen": false, "width": 50 },
       "editable": true,
       "formula": null,
       "formatter": null,
@@ -62,6 +62,7 @@
       "editable": true,
       "formula": null,
       "formatter": "CURRENCY",
+      "parser": "NUMBER",
       "group": "compensation",
       "editorType": "text"
     },
@@ -74,6 +75,7 @@
       "editable": true,
       "formula": null,
       "formatter": "CURRENCY",
+      "parser": "NUMBER",
       "group": "compensation",
       "editorType": "text"
     },
@@ -86,6 +88,7 @@
       "editable": false,
       "formula": "baseSalary + bonus",
       "formatter": "CURRENCY",
+      "parser": "NUMBER",
       "group": "compensation",
       "editorType": "text"
     },
