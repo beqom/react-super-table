@@ -1,39 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import ImmutablePropTypes from 'react-immutable-proptypes';
 import throttle from 'lodash/throttle';
 import Immutable from 'immutable';
 import classnames from 'classnames';
 import IconPin from 'react-icons/lib/go/pin';
 import debounce from 'lodash/debounce';
 
-// import TableRowIndexes from '../TableRowIndexes';
-// import TableColumnIndexes from '../TableColumnIndexes';
-
+import Types from './Types';
 import TableHeader from './components/TableHeader';
 import TableBody from './components/TableBody';
 import './Table.scss';
 
-const getHeaderRowsCount = (columns, groups) => {
-  const colGroups = columns
-    .map(column => column.get('group'))
-    .filter((key, i, arr) => !!key && arr.indexOf(key) === i)
-    .map(key => groups.find(g => g.get('key') === key))
-    .filter(g => !!g);
-  if (colGroups.size) {
-    return 1 + getHeaderRowsCount(colGroups, groups);
-  }
-  return 0;
-};
-
 class Table extends React.Component {
   constructor(props) {
     super(props);
-
-    this.columns = Immutable.fromJS(this.props.columns).sort((a, b) => {
-      if (a.order < b.order) return -1
-      if (a.order > b.order) return 1;
-      return 0;
-    });
 
     this.state = {
       selectedCell: undefined,
@@ -45,10 +26,6 @@ class Table extends React.Component {
         mouseY: null,
         containerBox: null,
       },
-      frozenColumns: this.columns.filter(c => c.getIn(['layout', 'frozen'])),
-      columns: this.columns.filter(c => !c.getIn(['layout', 'frozen'])),
-      rows: Immutable.fromJS(this.props.rows).slice(0, 20),
-      groups: Immutable.fromJS(this.props.groups),
     };
 
     this.handleResizeStart = this.handleResizeStart.bind(this);
@@ -62,9 +39,7 @@ class Table extends React.Component {
     this.handleScrollHeader = debounce(this.handleScrollHeader.bind(this), 10);
   }
 
-  handleResizeStart({
-    colIndex, rowIndex, handleBox, mouseX, mouseY,
-  }) {
+  handleResizeStart({ colIndex, rowIndex, handleBox, mouseX, mouseY }) {
     const containerBox = this.containerNode.getBoundingClientRect();
     this.setState(() => ({
       resizing: {
@@ -89,9 +64,7 @@ class Table extends React.Component {
 
   handleResizeEnd(mouseX, mouseY) {
     const { colsWidth, rowsHeight, resizing } = this.state;
-    const {
-      colIndex, rowIndex, startX, startY,
-    } = resizing;
+    const { colIndex, rowIndex, startX, startY } = resizing;
 
     // resizing columns
     if (!isNaN(colIndex)) {
@@ -157,8 +130,16 @@ class Table extends React.Component {
     if (!selectedCell) return;
 
     const { columnKey, rowKey, editing } = selectedCell;
-    const selectedColumn = this.columns.find(column => column.get('key') === selectedCell.columnKey);
-    if (editing || !selectedColumn || !selectedColumn.get('editable') || !!selectedColumn.get('formula')) return;
+    const selectedColumn = this.columns.find(
+      column => column.get('key') === selectedCell.columnKey
+    );
+    if (
+      editing ||
+      !selectedColumn ||
+      !selectedColumn.get('editable') ||
+      !!selectedColumn.get('formula')
+    )
+      return;
 
     this.setState({
       selectedCell: { columnKey, rowKey, editing: true },
@@ -167,9 +148,7 @@ class Table extends React.Component {
 
   renderResizeColsHelper() {
     const { colsWidth, resizing } = this.state;
-    const {
-      colIndex, mouseX, startX, handleBox, containerBox,
-    } = resizing;
+    const { colIndex, mouseX, startX, handleBox, containerBox } = resizing;
     if (!colIndex && colIndex !== 0) return null;
 
     const mouseOffsetX = startX - (handleBox.left + handleBox.width / 2);
@@ -182,9 +161,7 @@ class Table extends React.Component {
 
   renderResizeRowsHelper() {
     const { rowsHeight, resizing } = this.state;
-    const {
-      rowIndex, mouseY, startY, handleBox, containerBox,
-    } = resizing;
+    const { rowIndex, mouseY, startY, handleBox, containerBox } = resizing;
     if (!rowIndex && rowIndex !== 0) return null;
 
     const mouseOffsetY = startY - (handleBox.top + handleBox.height / 2);
@@ -196,10 +173,7 @@ class Table extends React.Component {
   }
 
   render() {
-    const { rowKey } = this.props;
-    const { groups, rows, columns, frozenColumns } = this.state;
-
-    const headerRowsCount = getHeaderRowsCount(this.columns, groups) + 1;
+    const { rowKey, headerRowsCount, groups, rows, unfrozenColumns, frozenColumns } = this.props;
 
     return (
       <div
@@ -260,7 +234,7 @@ class Table extends React.Component {
             </table>
             */}
             <TableHeader
-              columns={columns}
+              columns={unfrozenColumns}
               groups={groups}
               headerRowsCount={headerRowsCount}
             />
@@ -268,7 +242,13 @@ class Table extends React.Component {
         </div>
 
         <div className="Table__content-container">
-          <div className="Table__content-feezed-cols" onScroll={this.handleScrollFrozenContent} ref={node => {this.frozenContentNode = node;}}>
+          <div
+            className="Table__content-feezed-cols"
+            onScroll={this.handleScrollFrozenContent}
+            ref={node => {
+              this.frozenContentNode = node;
+            }}
+          >
             {/*
             <TableRowIndexes
               rows={rows}
@@ -291,9 +271,15 @@ class Table extends React.Component {
               onEditSelectedCell={this.handleEditSelectedCell}
             />
           </div>
-          <div className="Table__content" onScroll={this.handleScrollContent} ref={node => {this.contentNode = node;}}>
+          <div
+            className="Table__content"
+            onScroll={this.handleScrollContent}
+            ref={node => {
+              this.contentNode = node;
+            }}
+          >
             <TableBody
-              columns={columns}
+              columns={unfrozenColumns}
               rows={rows}
               rowKey={rowKey}
               selectedCell={this.state.selectedCell}
@@ -308,31 +294,16 @@ class Table extends React.Component {
   }
 }
 
-Table.displayName = "Table";
+Table.displayName = 'Table';
 
 Table.propTypes = {
-  groups: PropTypes.arrayOf(PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    group: PropTypes.string,
-  })).isRequired,
-  columns: PropTypes.arrayOf(PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    order: PropTypes.number.isRequired,
-    dataType: PropTypes.string.isRequired,
-    layout: PropTypes.shape({
-      visible: PropTypes.bool.isRequired,
-      frozen: PropTypes.bool.isRequired,
-      width: PropTypes.number.isRequired,
-    }).isRequired,
-    editable: PropTypes.bool.isRequired,
-    formula: PropTypes.string,
-    formatter: PropTypes.func,
-    group: PropTypes.string,
-    editorType: PropTypes.string,
-  })).isRequired,
-  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  rowKey: PropTypes.string.isRequired,
+  headerRowsCount: PropTypes.number.isRequired,
+  groups: ImmutablePropTypes.listOf(Types.immutableGroup).isRequired,
+  // columns: ImmutablePropTypes.contains(Types.columnKeys).isRequired,
+  unfrozenColumns: ImmutablePropTypes.listOf(Types.immutableColumn).isRequired,
+  frozenColumns: ImmutablePropTypes.listOf(Types.immutableColumn).isRequired,
+  rows: ImmutablePropTypes.listOf(ImmutablePropTypes.map).isRequired,
 };
 
 export default Table;
