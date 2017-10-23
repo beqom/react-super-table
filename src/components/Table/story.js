@@ -20,14 +20,15 @@ const FORMATTERS = {
 };
 
 const PARSERS = {
-  NUMBER: x => parseFloat(x, 10),
+  NUMBER: x => parseFloat(`${x}`.replace(/[^0-9.,-]/g, '').replace(',', '.'), 10),
   IDENTITY: x => x,
 };
 
 const columns = Immutable.fromJS(data.columns)
-  .map(col => col
-    .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
-    .set('parser', PARSERS[col.get('parser') || 'IDENTITY'])
+  .map(col =>
+    col
+      .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
+      .set('parser', PARSERS[col.get('parser') || 'IDENTITY'])
   )
   .toJS();
 
@@ -38,9 +39,7 @@ storiesOf('Table', module)
 
     return (
       <Provider store={store}>
-        <div style={{ margin: 50, height: 500 }}>
-          {story()}
-        </div>
+        <div style={{ margin: 50, height: 500 }}>{story()}</div>
       </Provider>
     );
   })

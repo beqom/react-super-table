@@ -28,6 +28,33 @@ class TableContainer extends Component {
     props.setColumns(columns);
     props.setRows(rows);
     props.setDisplayableRows(formatRows(rows, columns));
+
+    this.handleEditCell = this.handleEditCell.bind(this);
+    this.handleChangeSelectAllRows = this.handleChangeSelectAllRows.bind(this);
+    this.handleChangeSelectRow = this.handleChangeSelectRow.bind(this);
+  }
+
+  handleEditCell(rowKey, columnKey, value) {
+    const rows = this.props.store.get('rows');
+    const columns = this.props.store.get('columns');
+    const displayableRows = this.props.store.get('displayableRows');
+    const column = columns.find(c => c.get('key') === columnKey);
+    const formatter = column.get('formatter');
+    const parser = column.get('parser');
+    const parsedValue = parser(value);
+    const formattedValue = formatter(parsedValue);
+    const rowIndex = rows.findIndex(r => r.get(this.props.rowKey) === rowKey);
+
+    this.props.setRows(rows.setIn([rowIndex, columnKey], parsedValue));
+    this.props.setDisplayableRows(displayableRows.setIn([rowIndex, columnKey], formattedValue));
+  }
+
+  handleChangeSelectAllRows() {
+
+  }
+
+  handleChangeSelectRow() {
+
   }
 
   render() {
@@ -43,6 +70,9 @@ class TableContainer extends Component {
         unfrozenColumns={store.get('unfrozenColumns')}
         rows={store.get('displayableRows')}
         headerRowsCount={store.get('headerRowsCount')}
+        onEditCell={this.handleEditCell}
+        onChangeSelectAllRows={this.handleChangeSelectAllRows}
+        onChangeSelectRow={this.handleChangeSelectRow}
       />
     );
   }

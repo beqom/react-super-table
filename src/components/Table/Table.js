@@ -130,7 +130,7 @@ class Table extends React.Component {
     if (!selectedCell) return;
 
     const { columnKey, rowKey, editing } = selectedCell;
-    const selectedColumn = this.columns.find(
+    const selectedColumn = this.props.columns.find(
       column => column.get('key') === selectedCell.columnKey
     );
     if (
@@ -204,7 +204,7 @@ class Table extends React.Component {
             </table>
             */}
             <TableHeader
-              onChangeSelectAllRows={() => {}}
+              onChangeSelectAllRows={this.props.onChangeSelectAllRows}
               columns={frozenColumns}
               groups={groups}
               headerRowsCount={headerRowsCount}
@@ -261,7 +261,7 @@ class Table extends React.Component {
             />
             */}
             <TableBody
-              onChangeSelectRow={() => {}}
+              onChangeSelectRow={this.props.onChangeSelectRow}
               columns={frozenColumns}
               rows={rows}
               rowKey={rowKey}
@@ -269,6 +269,7 @@ class Table extends React.Component {
               onSelectCell={this.handleSelectCell}
               onUnselectCell={this.handleUnselectCell}
               onEditSelectedCell={this.handleEditSelectedCell}
+              onEditCell={this.props.onEditCell}
             />
           </div>
           <div
@@ -286,6 +287,7 @@ class Table extends React.Component {
               onSelectCell={this.handleSelectCell}
               onUnselectCell={this.handleUnselectCell}
               onEditSelectedCell={this.handleEditSelectedCell}
+              onEditCell={this.props.onEditCell}
             />
           </div>
         </div>
@@ -304,6 +306,9 @@ Table.propTypes = {
   unfrozenColumns: ImmutablePropTypes.listOf(Types.immutableColumn).isRequired,
   frozenColumns: ImmutablePropTypes.listOf(Types.immutableColumn).isRequired,
   rows: ImmutablePropTypes.listOf(ImmutablePropTypes.map).isRequired,
+  onEditCell: PropTypes.func.isRequired,
+  onChangeSelectAllRows: PropTypes.func.isRequired,
+  onChangeSelectRow: PropTypes.func.isRequired,
 };
 
 export default Table;

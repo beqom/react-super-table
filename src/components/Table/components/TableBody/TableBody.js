@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
 
-import TableCell from '../TableCell';
+import TableRow from '../TableRow';
 
 import './TableBody.scss';
 
@@ -19,11 +19,9 @@ class TableBody extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    if (this.props.fields !== nextProps.fields) return true;
+    if (this.props.columns !== nextProps.columns) return true;
     if (this.props.rows !== nextProps.rows) return true;
     if (this.props.selectedCell !== nextProps.selectedCell) return true;
-    if (this.props.colsWidth !== nextProps.colsWidth) return true;
-    if (this.props.rowsHeight !== nextProps.rowsHeight) return true;
     return false;
   }
 
@@ -92,58 +90,27 @@ class TableBody extends React.Component {
     this.props.onSelectCell(columnKey, rowKey);
   }
 
-  renderSelectRow() {
-    if (!this.props.onChangeSelectRow) return null;
-
-    return (
-      <th className="TableBody__cell">
-        <div className="TableBody__cell-content TableBody__cell-content--select">
-          <input type="checkbox" onChange={this.props.onChangeSelectRow} />
-        </div>
-      </th>
-    );
-  }
-
   render() {
-    const { columns, rows, rowKey, selectedCell = {} } = this.props;
+    const { columns, rows, selectedCell = {} } = this.props;
 
     const tbodies = rows.map(row => {
       const rowKey = row.get(this.props.rowKey);
-      const tds = columns.map(column => {
-        const columnKey = column.get('key');
-        const formatter = column.get('formatter');
-        const width = column.getIn(['layout', 'width']);
-        const selected = selectedCell.columnKey === columnKey && selectedCell.rowKey === rowKey;
-        const onSelect = () => this.props.onSelectCell(columnKey, rowKey);
-
-        const onClick = selected ? this.props.onEditSelectedCell : onSelect;
-        const editable = column.get('editable') && !column.get('formula')
-        const events = { onKeyDown: this.handleKeyPress, onClick };
-
-        return (
-          <td
-            key={columnKey}
-            className={classnames('TableBody__cell', { 'TableBody__cell--focused': selected })}
-          >
-            <TableCell
-              selected={selected}
-              editing={selected && selectedCell.editing}
-              {...events}
-              style={selected && selectedCell.editing ? {} : { width }}
-              editable={editable}
-              formula={column.get('formula')}
-            >
-              {row.get(columnKey)}
-            </TableCell>
-          </td>
-        );
-      });
-
+      const selectedColumnKey = selectedCell.rowKey === rowKey ? selectedCell.columnKey : null ;
+      const selectedCellEditing = selectedCell.rowKey === rowKey ? selectedCell.editing : false;
       return (
-        <tr className="TableBody__row" key={rowKey}>
-          {this.renderSelectRow()}
-          {tds}
-        </tr>
+        <TableRow
+          key={rowKey}
+          rowKey={rowKey}
+          row={row}
+          columns={columns}
+          selectedColumnKey={selectedColumnKey}
+          onSelectCell={this.props.onSelectCell}
+          onEditSelectedCell={this.props.onEditSelectedCell}
+          onChangeSelectRow={this.props.onChangeSelectRow}
+          onEditCell={this.props.onEditCell}
+          selectedCellEditing={selectedCellEditing}
+          handleKeyPress={this.handleKeyPress}
+        />
       );
     });
 
@@ -160,8 +127,10 @@ TableBody.displayName = 'TableBody';
 TableBody.defaultProps = {};
 
 TableBody.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.any,
+  onEditCell: PropTypes.func.isRequired,
+  onUnselectCell: PropTypes.func.isRequired,
+  onSelectCell: PropTypes.func.isRequired,
+  onChangeSelectRow: PropTypes.func,
 };
 
 export default TableBody;
