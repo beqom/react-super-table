@@ -27,7 +27,7 @@ class TableContainer extends Component {
     props.setGroups(groups);
     props.setColumns(columns);
     props.setRows(rows);
-    props.setDisplayableRows(rows);
+    props.setDisplayableRows(formatRows(rows, columns));
   }
 
   render() {

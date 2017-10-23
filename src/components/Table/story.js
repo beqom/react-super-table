@@ -27,11 +27,9 @@ const PARSERS = {
 const columns = Immutable.fromJS(data.columns)
   .map(col => col
     .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
-    .set('parser', FORMATTERS[col.get('parser') || 'IDENTITY'])
+    .set('parser', PARSERS[col.get('parser') || 'IDENTITY'])
   )
   .toJS();
-const rows = data.rows;
-const groups = data.groups;
 
 storiesOf('Table', module)
   .addDecorator(withReadme(README))
@@ -52,9 +50,9 @@ storiesOf('Table', module)
       tableId="playground"
       reducerName="Table"
       editable={boolean('editable', true)}
-      groups={groups}
+      groups={data.groups}
       columns={columns}
-      rows={rows}
+      rows={data.rows}
       rowKey="id"
     />
   ));

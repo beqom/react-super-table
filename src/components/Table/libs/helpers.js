@@ -19,4 +19,10 @@ export const sortColumns = columns =>
   });
 
 
-export const formatRows = (rows, columns) => rows;
+export const formatRows = (rows, columns) =>
+  rows.map(row => columns.reduce((acc, column) => {
+    const formatter = column.get('formatter');
+    const columnKey = column.get('key');
+    const value = row.get(columnKey);
+    return acc.set(columnKey, formatter(value));
+  }, row));

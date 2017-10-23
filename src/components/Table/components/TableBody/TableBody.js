@@ -133,7 +133,7 @@ class TableBody extends React.Component {
               editable={editable}
               formula={column.get('formula')}
             >
-              {formatter(row.get(columnKey))}
+              {row.get(columnKey)}
             </TableCell>
           </td>
         );
