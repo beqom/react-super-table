@@ -6,14 +6,26 @@ import omit from 'lodash/omit';
 import './TableCell.scss';
 
 class TableCell extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      value: props.value,
+    };
 
     this.setContentNode = this.setContentNode.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleEditCell = this.handleEditCell.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.value !== this.props.value) {
+      this.setState({ value: nextProps.value });
+    }
   }
 
   shouldComponentUpdate(nextProps) {
-    if (nextProps.children !== this.props.children) return true;
+    if (nextProps.value !== this.props.value) return true;
     if (nextProps.selected !== this.props.selected) return true;
     if (nextProps.editing !== this.props.editing) return true;
     if (nextProps.style !== this.props.style) return true;
@@ -23,9 +35,15 @@ class TableCell extends React.Component {
   componentDidUpdate(prevProps) {
     const becameSelected = !prevProps.selected && this.props.selected;
     const becameEditing = !prevProps.editing && this.props.editing;
+    const becameNotSelected = prevProps.selected && !this.props.selected;
+    const becameNotEditing = prevProps.editing && !this.props.editing;
     if (becameSelected || becameEditing) {
       this.focus();
       if (becameEditing) this.setCursorAtTheEnd();
+    }
+
+    if (becameNotSelected || becameNotEditing) {
+      this.handleEditCell();
     }
   }
 
@@ -43,44 +61,69 @@ class TableCell extends React.Component {
     this.contentNode = node;
   }
 
-  focus() {
+  blur() {
     this.contentNode.blur();
+  }
+
+  focus() {
+    this.blur();
     this.contentNode.focus();
   }
 
+  handleChange() {
+    const value = this.contentNode.innerHTML;
+    this.setState({ value });
+  }
+
+  handleEditCell() {
+    if (this.state.value !== this.props.value){
+      const { rowKey, columnKey, onEditCell } = this.props;
+      onEditCell(rowKey, columnKey, this.state.value);
+    }
+  }
+
   render() {
-    const { children, selected, editing, editable, formula } = this.props;
-    const props = omit(this.props, ['children', 'selected', 'editing', 'editable', 'formula']);
+    const { value, selected, editing, editable, formula } = this.props;
     const editingProps = editing
-      ? { contentEditable: 'true', dangerouslySetInnerHTML: { __html: children } }
-      : { children };
+      ? {
+          contentEditable: 'true',
+          dangerouslySetInnerHTML: { __html: this.state.value },
+          onBlur: this.handleEditCell,
+          onInput: this.handleChange,
+        }
+      : { children: value };
 
     return (
-      <div
-        {...props}
-        className={classnames('TableCell', {
-          'TableCell--selected': selected,
-          'TableCell--editing': editing,
-          'TableCell--readonly': !editable,
-          'TableCell--formula': formula,
-        })}
-        tabIndex="0"
-        ref={this.setContentNode}
-        {...editingProps}
-      />
+      <td className={classnames('TableBody__cell', { 'TableBody__cell--focused': selected })}>
+        <div
+          style={this.props.style}
+          {...this.props.events}
+          className={classnames('TableCell', {
+            'TableCell--selected': selected,
+            'TableCell--editing': editing,
+            'TableCell--readonly': !editable,
+            'TableCell--formula': formula,
+          })}
+          tabIndex="0"
+          ref={this.setContentNode}
+          {...editingProps}
+        />
+      </td>
+
     );
   }
 }
 
-
 TableCell.displayName = 'TableCell';
 
-TableCell.defaultProps = {
-};
+TableCell.defaultProps = {};
 
 TableCell.propTypes = {
   className: PropTypes.string,
-  children: PropTypes.any,
+  value: PropTypes.any,
+  rowKey: PropTypes.string.isRequired,
+  columnKey: PropTypes.string.isRequired,
+  onEditCell: PropTypes.func.isRequired,
 };
 
 export default TableCell;

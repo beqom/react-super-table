@@ -4,8 +4,11 @@ import { storiesOf } from '@storybook/react';
 import { boolean, text, number, color, array, object, select, date } from '@storybook/addon-knobs';
 import withReadme from 'storybook-readme/with-readme';
 import Immutable from 'immutable';
+import { createStore, combineReducers } from 'redux';
+import { Provider } from 'react-redux';
 
-import Table from './Table';
+import TableContainer from './TableContainer';
+import reducer from './reducer';
 import README from './README.md';
 
 import data from './data.json';
@@ -17,29 +20,38 @@ const FORMATTERS = {
 };
 
 const PARSERS = {
-  NUMBER: x => parseFloat(x, 10),
+  NUMBER: x => parseFloat(`${x}`.replace(/[^0-9.,-]/g, '').replace(',', '.'), 10),
   IDENTITY: x => x,
 };
 
 const columns = Immutable.fromJS(data.columns)
-  .map(col => col
-    .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
-    .set('parser', FORMATTERS[col.get('parser') || 'IDENTITY'])
+  .map(col =>
+    col
+      .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
+      .set('parser', PARSERS[col.get('parser') || 'IDENTITY'])
   )
   .toJS();
-const rows = data.rows;
-const groups = data.groups;
 
 storiesOf('Table', module)
   .addDecorator(withReadme(README))
-  .addDecorator(story => <div style={{ margin: 50, height: 500 }}>{story()}</div>)
+  .addDecorator(story => {
+    const store = createStore(combineReducers({ Table: reducer }));
+
+    return (
+      <Provider store={store}>
+        <div style={{ margin: 50, height: 500 }}>{story()}</div>
+      </Provider>
+    );
+  })
   // .addWithJSX('playground', () => (
   .add('playground', () => (
-    <Table
+    <TableContainer
+      tableId="playground"
+      reducerName="Table"
       editable={boolean('editable', true)}
-      groups={groups}
+      groups={data.groups}
       columns={columns}
-      rows={rows}
+      rows={data.rows}
       rowKey="id"
     />
   ));
