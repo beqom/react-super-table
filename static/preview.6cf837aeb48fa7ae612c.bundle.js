@@ -41468,7 +41468,7 @@ var TableCell = function (_React$Component) {
 
       var editingProps = editing ? {
         contentEditable: 'true',
-        dangerouslySetInnerHTML: { __html: this.state.value },
+        dangerouslySetInnerHTML: { __html: this.props.value },
         onBlur: this.handleEditCell,
         onInput: this.handleChange
       } : { children: value };
@@ -53337,4 +53337,4 @@ module.exports = __webpack_require__(742);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=preview.ae17077edf0b7c3c9f68.bundle.js.map
+//# sourceMappingURL=preview.6cf837aeb48fa7ae612c.bundle.js.map
