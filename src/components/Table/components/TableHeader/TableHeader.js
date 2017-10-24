@@ -66,6 +66,7 @@ class TableHeader extends React.Component {
           className="TableHeader__cell"
           colSpan={columnsCount || 0}
           rowSpan={columnsCount ? 0 : rowsCount - rowIndex}
+          scope={columnsCount ? 'colgroup' : 'col'}
         >
           <div className="TableHeader__cell-content" style={style}>{column.get('title')}</div>
         </th>
@@ -74,7 +75,7 @@ class TableHeader extends React.Component {
 
     return (
       <tr key={rowIndex} className="TableHeader__row">
-        <th className="TableHeader__cell-fix" />
+        {!this.props.noTable && (<th className="TableHeader__cell-fix" />)}
         {this.renderSelectAllRows(rowIndex)}
         {headers}
       </tr>
@@ -82,7 +83,7 @@ class TableHeader extends React.Component {
   }
 
   render() {
-    const { columns, className, headerRowsCount } = this.props;
+    const { noTable, columns, className, headerRowsCount } = this.props;
 
     const headers = this.getHeaders(columns);
     const headerRows = headers.map((header, index) =>
@@ -91,12 +92,19 @@ class TableHeader extends React.Component {
     const headerRowsCountDeltaRows = range(headerRowsCount - headers.size).map(i =>
       this.renderHeaderRow([], headers.size + i));
 
+
+    const thead = (
+      <thead className={classnames('TableHeader__thead', { 'TableHeader__thead--no-table': noTable })}>
+        {headerRows}
+        {headerRowsCountDeltaRows}
+      </thead>
+    );
+
+    if (noTable) return thead;
+
     return (
       <table className={classnames('TableHeader', className)}>
-        <thead className="TableHeader__thead">
-          {headerRows}
-          {headerRowsCountDeltaRows}
-        </thead>
+        {thead}
       </table>
     );
   }
@@ -109,6 +117,7 @@ TableHeader.defaultProps = {};
 TableHeader.propTypes = {
   className: PropTypes.string,
   children: PropTypes.any,
+  noTable: PropTypes.bool,
 };
 
 export default TableHeader;

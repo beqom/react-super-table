@@ -73,6 +73,7 @@ class TableContainer extends Component {
         onEditCell={this.handleEditCell}
         onChangeSelectAllRows={this.handleChangeSelectAllRows}
         onChangeSelectRow={this.handleChangeSelectRow}
+        screenReaderMode={this.props.screenReaderMode}
       />
     );
   }
@@ -82,12 +83,22 @@ class TableContainer extends Component {
 TableContainer.displayName = 'TableContainer';
 
 TableContainer.propTypes = {
+  // tableId & reducerName are used in redux
+  // eslint-disable-next-line react/no-unused-prop-types
   tableId: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/no-unused-prop-types
   reducerName: PropTypes.string.isRequired,
+  screenReaderMode: PropTypes.bool,
   rowKey: PropTypes.string.isRequired,
   groups: PropTypes.arrayOf(Types.group).isRequired,
   columns: PropTypes.arrayOf(Types.column).isRequired,
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  // actions
+  initStore: PropTypes.func.isRequired,
+  setGroups: PropTypes.func.isRequired,
+  setColumns: PropTypes.func.isRequired,
+  setRows: PropTypes.func.isRequired,
+  setDisplayableRows: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state, props) => {

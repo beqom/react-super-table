@@ -71,8 +71,12 @@ class TableBody extends React.Component {
     if (!selectedCell) return;
     if (e) e.preventDefault();
 
-    const selectedColumnIndex = this.props.columns.findIndex(column => column.get('key') === selectedCell.columnKey);
-    const selectedRowIndex = this.props.rows.findIndex(row => row.get(this.props.rowKey) === selectedCell.rowKey);
+    const selectedColumnIndex = this.props.columns.findIndex(
+      column => column.get('key') === selectedCell.columnKey
+    );
+    const selectedRowIndex = this.props.rows.findIndex(
+      row => row.get(this.props.rowKey) === selectedCell.rowKey
+    );
 
     if (selectedColumnIndex < 0 || selectedRowIndex < 0) return this.props.onUnselectCell();
 
@@ -88,15 +92,16 @@ class TableBody extends React.Component {
   }
 
   render() {
-    const { columns, rows, selectedCell = {} } = this.props;
+    const { columns, rows, noTable, selectedCell = {}, screenReaderMode } = this.props;
 
     const tbodies = rows.map(row => {
       const rowKey = row.get(this.props.rowKey);
-      const selectedColumnKey = selectedCell.rowKey === rowKey ? selectedCell.columnKey : null ;
+      const selectedColumnKey = selectedCell.rowKey === rowKey ? selectedCell.columnKey : null;
       const selectedCellEditing = selectedCell.rowKey === rowKey ? selectedCell.editing : false;
       return (
         <TableRow
           key={rowKey}
+          screenReaderMode={screenReaderMode}
           rowKey={rowKey}
           row={row}
           columns={columns}
@@ -113,9 +118,13 @@ class TableBody extends React.Component {
       );
     });
 
+    const tbody = <tbody>{tbodies}</tbody>;
+
+    if (noTable) return tbody;
+
     return (
       <table className="TableBody">
-        <tbody>{tbodies}</tbody>
+        {tbody}
       </table>
     );
   }
@@ -126,12 +135,11 @@ TableBody.displayName = 'TableBody';
 TableBody.defaultProps = {};
 
 TableBody.propTypes = {
-
   onEditCell: PropTypes.func.isRequired,
   onUnselectCell: PropTypes.func.isRequired,
   onSelectCell: PropTypes.func.isRequired,
   onChangeSelectRow: PropTypes.func,
-
+  noTable: PropTypes.bool,
 };
 
 export default TableBody;

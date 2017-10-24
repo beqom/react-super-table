@@ -48,7 +48,7 @@ storiesOf('Table', module)
     <TableContainer
       tableId="playground"
       reducerName="Table"
-      editable={boolean('editable', true)}
+      screenReaderMode={boolean('screenReaderMode', false)}
       groups={data.groups}
       columns={columns}
       rows={data.rows}
