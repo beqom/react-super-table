@@ -94,15 +94,15 @@ class TableCell extends React.Component {
       : { children: value };
 
     return (
-      <td className={classnames('TableBody__cell', { 'TableBody__cell--focused': selected })}>
+      <td className={classnames('TableCell', { 'TableCell--focused': selected })}>
         <div
           style={this.props.style}
           {...this.props.events}
-          className={classnames('TableCell', {
-            'TableCell--selected': selected,
-            'TableCell--editing': editing,
-            'TableCell--readonly': !editable,
-            'TableCell--formula': formula,
+          className={classnames('TableCell__content', {
+            'TableCell__content--selected': selected,
+            'TableCell__content--editing': editing,
+            'TableCell__content--readonly': !editable,
+            'TableCell__content--formula': formula,
           })}
           tabIndex="0"
           ref={this.setContentNode}

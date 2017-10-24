@@ -19,8 +19,8 @@ class TableRow extends React.Component {
     if (!this.props.onChangeSelectRow) return null;
 
     return (
-      <th className="TableBody__cell">
-        <div className="TableBody__cell-content TableBody__cell-content--select">
+      <th className="TableCell">
+        <div className="TableCell__content TableCell__content--select">
           <input type="checkbox" onChange={this.props.onChangeSelectRow} />
         </div>
       </th>

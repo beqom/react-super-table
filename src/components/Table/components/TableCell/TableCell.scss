@@ -1,6 +1,27 @@
 @import '../../../../style/inc';
 
 .TableCell {
+  border-bottom: 1px solid #ccc;
+
+  tr:last-child .TableCell {
+    border-bottom: 0;
+  }
+}
+
+.TableCell:not(:first-child) {
+  padding-left: 1px;
+}
+
+.TableCell--focused {
+  padding: 0;
+  overflow: visible;
+  position: relative;
+}
+
+
+
+
+.TableCell__content {
   outline: 0;
   text-align: center;
   overflow: hidden;
@@ -14,12 +35,16 @@
   padding: 10px 5px;
 }
 
-.TableCell--readonly {
+.TableCell__content--select {
+  padding: 10px 15px;
+}
+
+.TableCell__content--readonly {
   color: #888;
   font-style: italic;
 }
 
-.TableCell--formula {
+.TableCell__content--formula {
   position: relative;
   &:after {
     position: absolute;
@@ -34,7 +59,7 @@
   }
 }
 
-.TableCell--selected {
+.TableCell__content--selected {
   z-index: 10;
   box-shadow: inset 0 0 0 3px dodgerblue;
   position: absolute;
@@ -43,7 +68,7 @@
   min-height: 100%;
 }
 
-.TableCell--editing {
+.TableCell__content--editing {
   box-shadow: inset 0 0 0 3px dodgerblue;
   min-width: 100%;
   min-height: 100%;
