@@ -18,6 +18,7 @@ class Table extends React.Component {
 
     this.state = {
       selectedCell: undefined,
+      hoveredRowKey: undefined,
       resizing: {
         colIndex: null,
         rowIndex: null,
@@ -34,9 +35,14 @@ class Table extends React.Component {
     this.handleSelectCell = this.handleSelectCell.bind(this);
     this.handleUnselectCell = this.handleUnselectCell.bind(this);
     this.handleEditSelectedCell = this.handleEditSelectedCell.bind(this);
+    this.handleSetHoveredRowKey = this.handleSetHoveredRowKey.bind(this);
     this.handleScrollContent = debounce(this.handleScrollContent.bind(this), 10);
     this.handleScrollFrozenContent = debounce(this.handleScrollFrozenContent.bind(this), 10);
     this.handleScrollHeader = debounce(this.handleScrollHeader.bind(this), 10);
+  }
+
+  handleSetHoveredRowKey(hoveredRowKey) {
+    this.setState({ hoveredRowKey });
   }
 
   handleResizeStart({ colIndex, rowIndex, handleBox, mouseX, mouseY }) {
@@ -270,6 +276,8 @@ class Table extends React.Component {
               onUnselectCell={this.handleUnselectCell}
               onEditSelectedCell={this.handleEditSelectedCell}
               onEditCell={this.props.onEditCell}
+              onSetHoveredRowKey={this.handleSetHoveredRowKey}
+              hoveredRowKey={this.state.hoveredRowKey}
             />
           </div>
           <div
@@ -288,6 +296,8 @@ class Table extends React.Component {
               onUnselectCell={this.handleUnselectCell}
               onEditSelectedCell={this.handleEditSelectedCell}
               onEditCell={this.props.onEditCell}
+              onSetHoveredRowKey={this.handleSetHoveredRowKey}
+              hoveredRowKey={this.state.hoveredRowKey}
             />
           </div>
         </div>

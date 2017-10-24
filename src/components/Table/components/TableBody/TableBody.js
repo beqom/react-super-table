@@ -1,8 +1,8 @@
 import React from 'react';
-import classnames from 'classnames';
-import get from 'lodash/get';
 import PropTypes from 'prop-types';
+import ImmutablePropTypes from 'react-immutable-proptypes';
 
+import Types from '../../Types';
 import TableRow from '../TableRow';
 
 import './TableBody.scss';
@@ -11,14 +11,11 @@ class TableBody extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      focusedCell: null,
-    };
-
     this.handleKeyPress = this.handleKeyPress.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
+    if (this.props.hoveredRowKey !== nextProps.hoveredRowKey) return true;
     if (this.props.columns !== nextProps.columns) return true;
     if (this.props.rows !== nextProps.rows) return true;
     if (this.props.selectedCell !== nextProps.selectedCell) return true;
@@ -110,6 +107,8 @@ class TableBody extends React.Component {
           onEditCell={this.props.onEditCell}
           selectedCellEditing={selectedCellEditing}
           handleKeyPress={this.handleKeyPress}
+          onSetHoveredRowKey={this.props.onSetHoveredRowKey}
+          hovered={this.props.hoveredRowKey === rowKey}
         />
       );
     });
@@ -127,10 +126,12 @@ TableBody.displayName = 'TableBody';
 TableBody.defaultProps = {};
 
 TableBody.propTypes = {
+
   onEditCell: PropTypes.func.isRequired,
   onUnselectCell: PropTypes.func.isRequired,
   onSelectCell: PropTypes.func.isRequired,
   onChangeSelectRow: PropTypes.func,
+
 };
 
 export default TableBody;
