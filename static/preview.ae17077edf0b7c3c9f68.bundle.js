@@ -40385,8 +40385,8 @@ var Table = function (_React$Component) {
       return _react2.default.createElement('div', { className: 'Table__resize-row-helper', style: { top: top } });
     }
   }, {
-    key: 'render',
-    value: function render() {
+    key: 'renderForScreenReader',
+    value: function renderForScreenReader() {
       var _this2 = this;
 
       var _props = this.props,
@@ -40397,13 +40397,74 @@ var Table = function (_React$Component) {
           unfrozenColumns = _props.unfrozenColumns,
           frozenColumns = _props.frozenColumns;
 
+      var columns = frozenColumns.concat(unfrozenColumns);
+      return _react2.default.createElement(
+        'div',
+        {
+          className: 'Table Table--screen-reader',
+          ref: function ref(node) {
+            _this2.containerNode = node;
+          }
+        },
+        _react2.default.createElement(
+          'div',
+          { className: 'Table__content-container' },
+          _react2.default.createElement(
+            'div',
+            { className: 'Table__content' },
+            _react2.default.createElement(
+              'table',
+              { className: 'Table__screen-reader-table' },
+              _react2.default.createElement(_TableHeader2.default, {
+                noTable: true,
+                onChangeSelectAllRows: this.props.onChangeSelectAllRows,
+                columns: columns,
+                groups: groups,
+                headerRowsCount: headerRowsCount
+              }),
+              _react2.default.createElement(_TableBody2.default, {
+                screenReaderMode: true,
+                noTable: true,
+                onChangeSelectRow: this.props.onChangeSelectRow,
+                columns: columns,
+                rows: rows,
+                rowKey: rowKey,
+                selectedCell: this.state.selectedCell,
+                onSelectCell: this.handleSelectCell,
+                onUnselectCell: this.handleUnselectCell,
+                onEditSelectedCell: this.handleEditSelectedCell,
+                onEditCell: this.props.onEditCell,
+                onSetHoveredRowKey: this.handleSetHoveredRowKey,
+                hoveredRowKey: this.state.hoveredRowKey
+              })
+            )
+          )
+        )
+      );
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this3 = this;
+
+      var _props2 = this.props,
+          rowKey = _props2.rowKey,
+          headerRowsCount = _props2.headerRowsCount,
+          groups = _props2.groups,
+          rows = _props2.rows,
+          unfrozenColumns = _props2.unfrozenColumns,
+          frozenColumns = _props2.frozenColumns,
+          screenReaderMode = _props2.screenReaderMode;
+
+
+      if (screenReaderMode) return this.renderForScreenReader();
 
       return _react2.default.createElement(
         'div',
         {
           className: 'Table',
           ref: function ref(node) {
-            _this2.containerNode = node;
+            _this3.containerNode = node;
           }
         },
         this.renderResizeRowsHelper(),
@@ -40427,7 +40488,7 @@ var Table = function (_React$Component) {
               className: 'Table__head',
               onScroll: this.handleScrollHeader,
               ref: function ref(node) {
-                _this2.headerNode = node;
+                _this3.headerNode = node;
               }
             },
             _react2.default.createElement(_TableHeader2.default, {
@@ -40446,7 +40507,7 @@ var Table = function (_React$Component) {
               className: 'Table__content-feezed-cols',
               onScroll: this.handleScrollFrozenContent,
               ref: function ref(node) {
-                _this2.frozenContentNode = node;
+                _this3.frozenContentNode = node;
               }
             },
             _react2.default.createElement(_TableBody2.default, {
@@ -40469,7 +40530,7 @@ var Table = function (_React$Component) {
               className: 'Table__content',
               onScroll: this.handleScrollContent,
               ref: function ref(node) {
-                _this2.contentNode = node;
+                _this3.contentNode = node;
               }
             },
             _react2.default.createElement(_TableBody2.default, {
@@ -40505,7 +40566,8 @@ Table.propTypes = {
   rows: _reactImmutableProptypes2.default.listOf(_reactImmutableProptypes2.default.map).isRequired,
   onEditCell: _propTypes2.default.func.isRequired,
   onChangeSelectAllRows: _propTypes2.default.func.isRequired,
-  onChangeSelectRow: _propTypes2.default.func.isRequired
+  onChangeSelectRow: _propTypes2.default.func.isRequired,
+  screenReaderMode: _propTypes2.default.bool
 };
 
 exports.default = Table;
@@ -40578,6 +40640,13 @@ Table.__docgenInfo = {
         'name': 'func'
       },
       'required': true,
+      'description': ''
+    },
+    'screenReaderMode': {
+      'type': {
+        'name': 'bool'
+      },
+      'required': false,
       'description': ''
     }
   }
@@ -40713,7 +40782,8 @@ var TableContainer = function (_Component) {
         headerRowsCount: store.get('headerRowsCount'),
         onEditCell: this.handleEditCell,
         onChangeSelectAllRows: this.handleChangeSelectAllRows,
-        onChangeSelectRow: this.handleChangeSelectRow
+        onChangeSelectRow: this.handleChangeSelectRow,
+        screenReaderMode: this.props.screenReaderMode
       });
     }
   }]);
@@ -40726,12 +40796,22 @@ var TableContainer = function (_Component) {
 TableContainer.displayName = 'TableContainer';
 
 TableContainer.propTypes = {
+  // tableId & reducerName are used in redux
+  // eslint-disable-next-line react/no-unused-prop-types
   tableId: _propTypes2.default.string.isRequired,
+  // eslint-disable-next-line react/no-unused-prop-types
   reducerName: _propTypes2.default.string.isRequired,
+  screenReaderMode: _propTypes2.default.bool,
   rowKey: _propTypes2.default.string.isRequired,
   groups: _propTypes2.default.arrayOf(_Types2.default.group).isRequired,
   columns: _propTypes2.default.arrayOf(_Types2.default.column).isRequired,
-  rows: _propTypes2.default.arrayOf(_propTypes2.default.object).isRequired
+  rows: _propTypes2.default.arrayOf(_propTypes2.default.object).isRequired,
+  // actions
+  initStore: _propTypes2.default.func.isRequired,
+  setGroups: _propTypes2.default.func.isRequired,
+  setColumns: _propTypes2.default.func.isRequired,
+  setRows: _propTypes2.default.func.isRequired,
+  setDisplayableRows: _propTypes2.default.func.isRequired
 };
 
 var mapStateToProps = function mapStateToProps(state, props) {
@@ -40774,6 +40854,13 @@ TableContainer.__docgenInfo = {
       'required': true,
       'description': ''
     },
+    'screenReaderMode': {
+      'type': {
+        'name': 'bool'
+      },
+      'required': false,
+      'description': ''
+    },
     'rowKey': {
       'type': {
         'name': 'string'
@@ -40809,6 +40896,41 @@ TableContainer.__docgenInfo = {
         'value': {
           'name': 'object'
         }
+      },
+      'required': true,
+      'description': ''
+    },
+    'initStore': {
+      'type': {
+        'name': 'func'
+      },
+      'required': true,
+      'description': ''
+    },
+    'setGroups': {
+      'type': {
+        'name': 'func'
+      },
+      'required': true,
+      'description': ''
+    },
+    'setColumns': {
+      'type': {
+        'name': 'func'
+      },
+      'required': true,
+      'description': ''
+    },
+    'setRows': {
+      'type': {
+        'name': 'func'
+      },
+      'required': true,
+      'description': ''
+    },
+    'setDisplayableRows': {
+      'type': {
+        'name': 'func'
       },
       'required': true,
       'description': ''
@@ -41054,8 +41176,10 @@ var TableBody = function (_React$Component) {
       var _props2 = this.props,
           columns = _props2.columns,
           rows = _props2.rows,
+          noTable = _props2.noTable,
           _props2$selectedCell = _props2.selectedCell,
-          selectedCell = _props2$selectedCell === undefined ? {} : _props2$selectedCell;
+          selectedCell = _props2$selectedCell === undefined ? {} : _props2$selectedCell,
+          screenReaderMode = _props2.screenReaderMode;
 
 
       var tbodies = rows.map(function (row) {
@@ -41064,6 +41188,7 @@ var TableBody = function (_React$Component) {
         var selectedCellEditing = selectedCell.rowKey === rowKey ? selectedCell.editing : false;
         return _react2.default.createElement(_TableRow2.default, {
           key: rowKey,
+          screenReaderMode: screenReaderMode,
           rowKey: rowKey,
           row: row,
           columns: columns,
@@ -41079,14 +41204,18 @@ var TableBody = function (_React$Component) {
         });
       });
 
+      var tbody = _react2.default.createElement(
+        'tbody',
+        null,
+        tbodies
+      );
+
+      if (noTable) return tbody;
+
       return _react2.default.createElement(
         'table',
         { className: 'TableBody' },
-        _react2.default.createElement(
-          'tbody',
-          null,
-          tbodies
-        )
+        tbody
       );
     }
   }]);
@@ -41099,12 +41228,11 @@ TableBody.displayName = 'TableBody';
 TableBody.defaultProps = {};
 
 TableBody.propTypes = {
-
   onEditCell: _propTypes2.default.func.isRequired,
   onUnselectCell: _propTypes2.default.func.isRequired,
   onSelectCell: _propTypes2.default.func.isRequired,
-  onChangeSelectRow: _propTypes2.default.func
-
+  onChangeSelectRow: _propTypes2.default.func,
+  noTable: _propTypes2.default.bool
 };
 
 exports.default = TableBody;
@@ -41136,6 +41264,13 @@ TableBody.__docgenInfo = {
     'onChangeSelectRow': {
       'type': {
         'name': 'func'
+      },
+      'required': false,
+      'description': ''
+    },
+    'noTable': {
+      'type': {
+        'name': 'bool'
       },
       'required': false,
       'description': ''
@@ -41229,6 +41364,7 @@ var TableCell = function (_React$Component) {
     _this.setContentNode = _this.setContentNode.bind(_this);
     _this.handleChange = _this.handleChange.bind(_this);
     _this.handleEditCell = _this.handleEditCell.bind(_this);
+    _this.handleTexteareaChange = _this.handleTexteareaChange.bind(_this);
     return _this;
   }
 
@@ -41241,7 +41377,8 @@ var TableCell = function (_React$Component) {
     }
   }, {
     key: 'shouldComponentUpdate',
-    value: function shouldComponentUpdate(nextProps) {
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      if (nextState.value !== this.state.value) return true;
       if (nextProps.value !== this.props.value) return true;
       if (nextProps.selected !== this.props.selected) return true;
       if (nextProps.editing !== this.props.editing) return true;
@@ -41255,25 +41392,29 @@ var TableCell = function (_React$Component) {
       var becameEditing = !prevProps.editing && this.props.editing;
       var becameNotSelected = prevProps.selected && !this.props.selected;
       var becameNotEditing = prevProps.editing && !this.props.editing;
-      if (becameSelected || becameEditing) {
-        this.focus();
-        if (becameEditing) this.setCursorAtTheEnd();
-      }
+      if (!this.props.screenReaderMode) {
+        if (becameSelected || becameEditing) {
+          this.focus();
+          if (becameEditing) this.setCursorAtTheEnd();
+        }
 
-      if (becameNotSelected || becameNotEditing) {
-        this.handleEditCell();
+        if (becameNotSelected || becameNotEditing) {
+          this.handleEditCell();
+        }
       }
     }
   }, {
     key: 'setCursorAtTheEnd',
     value: function setCursorAtTheEnd() {
-      var range = document.createRange();
-      range.selectNodeContents(this.contentNode);
-      range.collapse(false);
+      if (this.contentNode) {
+        var range = document.createRange();
+        range.selectNodeContents(this.contentNode);
+        range.collapse(false);
 
-      var sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     }
   }, {
     key: 'setContentNode',
@@ -41283,19 +41424,24 @@ var TableCell = function (_React$Component) {
   }, {
     key: 'blur',
     value: function blur() {
-      this.contentNode.blur();
+      if (this.contentNode) this.contentNode.blur();
     }
   }, {
     key: 'focus',
     value: function focus() {
       this.blur();
-      this.contentNode.focus();
+      if (this.contentNode) this.contentNode.focus();
     }
   }, {
     key: 'handleChange',
     value: function handleChange() {
       var value = this.contentNode.innerHTML;
       this.setState({ value: value });
+    }
+  }, {
+    key: 'handleTexteareaChange',
+    value: function handleTexteareaChange(e) {
+      this.setState({ value: e.target.value });
     }
   }, {
     key: 'handleEditCell',
@@ -41317,7 +41463,8 @@ var TableCell = function (_React$Component) {
           selected = _props2.selected,
           editing = _props2.editing,
           editable = _props2.editable,
-          formula = _props2.formula;
+          formula = _props2.formula,
+          screenReaderMode = _props2.screenReaderMode;
 
       var editingProps = editing ? {
         contentEditable: 'true',
@@ -41326,18 +41473,28 @@ var TableCell = function (_React$Component) {
         onInput: this.handleChange
       } : { children: value };
 
+      var className = (0, _classnames2.default)('TableCell__content', {
+        'TableCell__content--screen-reader': screenReaderMode,
+        'TableCell__content--selected': selected,
+        'TableCell__content--editing': editing,
+        'TableCell__content--readonly': !editable,
+        'TableCell__content--formula': formula
+      });
+
       return _react2.default.createElement(
         'td',
         { className: (0, _classnames2.default)('TableCell', { 'TableCell--focused': selected }) },
-        _react2.default.createElement('div', _extends({
+        screenReaderMode ? _react2.default.createElement('textarea', {
+          disabled: !editable,
+          className: className,
+          style: this.props.style,
+          onChange: this.handleTexteareaChange,
+          value: this.state.value,
+          onBlur: this.handleEditCell
+        }) : _react2.default.createElement('div', _extends({
           style: this.props.style
         }, this.props.events, {
-          className: (0, _classnames2.default)('TableCell__content', {
-            'TableCell__content--selected': selected,
-            'TableCell__content--editing': editing,
-            'TableCell__content--readonly': !editable,
-            'TableCell__content--formula': formula
-          }),
+          className: className,
           tabIndex: '0',
           ref: this.setContentNode
         }, editingProps))
@@ -41549,7 +41706,8 @@ var TableHeader = function (_React$Component) {
             key: column.get('key'),
             className: 'TableHeader__cell',
             colSpan: columnsCount || 0,
-            rowSpan: columnsCount ? 0 : rowsCount - rowIndex
+            rowSpan: columnsCount ? 0 : rowsCount - rowIndex,
+            scope: columnsCount ? 'colgroup' : 'col'
           },
           _react2.default.createElement(
             'div',
@@ -41562,7 +41720,7 @@ var TableHeader = function (_React$Component) {
       return _react2.default.createElement(
         'tr',
         { key: rowIndex, className: 'TableHeader__row' },
-        _react2.default.createElement('th', { className: 'TableHeader__cell-fix' }),
+        !this.props.noTable && _react2.default.createElement('th', { className: 'TableHeader__cell-fix' }),
         this.renderSelectAllRows(rowIndex),
         headers
       );
@@ -41573,6 +41731,7 @@ var TableHeader = function (_React$Component) {
       var _this3 = this;
 
       var _props = this.props,
+          noTable = _props.noTable,
           columns = _props.columns,
           className = _props.className,
           headerRowsCount = _props.headerRowsCount;
@@ -41587,15 +41746,19 @@ var TableHeader = function (_React$Component) {
         return _this3.renderHeaderRow([], headers.size + i);
       });
 
+      var thead = _react2.default.createElement(
+        'thead',
+        { className: (0, _classnames2.default)('TableHeader__thead', { 'TableHeader__thead--no-table': noTable }) },
+        headerRows,
+        headerRowsCountDeltaRows
+      );
+
+      if (noTable) return thead;
+
       return _react2.default.createElement(
         'table',
         { className: (0, _classnames2.default)('TableHeader', className) },
-        _react2.default.createElement(
-          'thead',
-          { className: 'TableHeader__thead' },
-          headerRows,
-          headerRowsCountDeltaRows
-        )
+        thead
       );
     }
   }]);
@@ -41609,7 +41772,8 @@ TableHeader.defaultProps = {};
 
 TableHeader.propTypes = {
   className: _propTypes2.default.string,
-  children: _propTypes2.default.any
+  children: _propTypes2.default.any,
+  noTable: _propTypes2.default.bool
 };
 
 exports.default = TableHeader;
@@ -41627,6 +41791,13 @@ TableHeader.__docgenInfo = {
     'children': {
       'type': {
         'name': 'any'
+      },
+      'required': false,
+      'description': ''
+    },
+    'noTable': {
+      'type': {
+        'name': 'bool'
       },
       'required': false,
       'description': ''
@@ -41788,6 +41959,7 @@ var TableRow = function (_React$Component) {
         return _react2.default.createElement(_TableCell2.default, {
           key: columnKey,
           selected: selected,
+          screenReaderMode: _this2.props.screenReaderMode,
           editing: selected && selectedCellEditing,
           events: events,
           style: selected && selectedCellEditing ? {} : { width: width },
@@ -42123,7 +42295,7 @@ var columns = _immutable2.default.fromJS(_data2.default.columns).map(function (c
   return _react2.default.createElement(_TableContainer2.default, {
     tableId: 'playground',
     reducerName: 'Table',
-    editable: (0, _addonKnobs.boolean)('editable', true),
+    screenReaderMode: (0, _addonKnobs.boolean)('screenReaderMode', false),
     groups: _data2.default.groups,
     columns: columns,
     rows: _data2.default.rows,
@@ -43305,7 +43477,7 @@ exports = module.exports = __webpack_require__(111)(undefined);
 
 
 // module
-exports.push([module.i, ".Table {\n  max-width: 100%;\n  margin: auto;\n  height: 100%;\n  border: 1px solid #ccc;\n  border-top: 0;\n  display: flex;\n  flex-direction: column;\n  position: relative; }\n\n.Table__head-container {\n  display: flex;\n  border-bottom: 2px solid #ccc; }\n\n.Table__head-freezed-cols {\n  display: flex; }\n\n.Table__head-freezed-cols,\n.Table__content-feezed-cols {\n  border-right: 3px solid #ccc; }\n\n.Table__head-rows-index {\n  height: 100%;\n  position: relative;\n  z-index: 10; }\n\n.Table__head {\n  flex: 1;\n  overflow: auto; }\n\n.Table__content-container {\n  flex: 1;\n  display: flex; }\n\n.Table__content-feezed-cols {\n  overflow: auto;\n  display: flex; }\n\n.Table__content {\n  flex: 1;\n  overflow: auto; }\n", ""]);
+exports.push([module.i, ".Table {\n  max-width: 100%;\n  margin: auto;\n  height: 100%;\n  border: 1px solid #ccc;\n  display: flex;\n  flex-direction: column;\n  position: relative; }\n  .Table:not(.Table--screen-reader) {\n    border-top: 0; }\n\n.Table__screen-reader-table {\n  border-collapse: collapse;\n  table-layout: fixed; }\n\n.Table__head-container {\n  display: flex;\n  border-bottom: 2px solid #ccc; }\n\n.Table__head-freezed-cols {\n  display: flex; }\n\n.Table__head-freezed-cols,\n.Table__content-feezed-cols {\n  border-right: 3px solid #ccc; }\n\n.Table__head-rows-index {\n  height: 100%;\n  position: relative;\n  z-index: 10; }\n\n.Table__head {\n  flex: 1;\n  overflow: auto; }\n\n.Table__content-container {\n  flex: 1;\n  display: flex; }\n\n.Table__content-feezed-cols {\n  overflow: auto;\n  display: flex; }\n\n.Table__content {\n  flex: 1;\n  overflow: auto; }\n", ""]);
 
 // exports
 
@@ -43333,7 +43505,7 @@ exports = module.exports = __webpack_require__(111)(undefined);
 
 
 // module
-exports.push([module.i, ".TableCell {\n  border-bottom: 1px solid #ccc; }\n  .TableCell tr:last-child .TableCell {\n    border-bottom: 0; }\n\n.TableCell:not(:first-child) {\n  padding-left: 1px; }\n\n.TableCell--focused {\n  padding: 0;\n  overflow: visible;\n  position: relative; }\n\n.TableCell__content {\n  outline: 0;\n  text-align: center;\n  overflow: hidden;\n  cursor: default;\n  min-width: 100%;\n  max-width: 100%;\n  max-height: 100%;\n  white-space: pre;\n  text-overflow: ellipsis;\n  padding: 10px 5px; }\n\n.TableCell__content--select {\n  padding: 10px 15px; }\n\n.TableCell__content--readonly {\n  color: #888;\n  font-style: italic; }\n\n.TableCell__content--formula {\n  position: relative; }\n  .TableCell__content--formula:after {\n    position: absolute;\n    content: \"\";\n    top: 5px;\n    right: 5px;\n    width: 5px;\n    height: 5px;\n    border-radius: 50%;\n    background-color: tomato;\n    display: block; }\n\n.TableCell__content--selected {\n  z-index: 10;\n  box-shadow: inset 0 0 0 3px dodgerblue;\n  position: absolute;\n  top: 0;\n  left: 0;\n  min-height: 100%; }\n\n.TableCell__content--editing {\n  box-shadow: inset 0 0 0 3px dodgerblue;\n  min-width: 100%;\n  min-height: 100%;\n  max-width: 200px;\n  max-height: 150px;\n  width: auto;\n  height: auto;\n  resize: none;\n  background: white;\n  overflow: auto;\n  text-align: left; }\n", ""]);
+exports.push([module.i, ".TableCell {\n  border-bottom: 1px solid #ccc; }\n  .TableCell tr:last-child .TableCell {\n    border-bottom: 0; }\n\n.TableCell:not(:first-child) {\n  padding-left: 1px; }\n\n.TableCell--focused {\n  padding: 0;\n  overflow: visible;\n  position: relative; }\n\n.TableCell__content {\n  font: inherit;\n  border: 0;\n  resize: none;\n  background: transparent;\n  outline: 0;\n  text-align: center;\n  overflow: hidden;\n  cursor: default;\n  min-width: 100%;\n  max-width: 100%;\n  max-height: 100%;\n  white-space: pre;\n  text-overflow: ellipsis;\n  padding: 10px 5px; }\n\n.TableCell__content--screen-reader:focus {\n  outline: 3px solid dodgerblue; }\n\n.TableCell__content--select {\n  padding: 10px 15px; }\n\n.TableCell__content--readonly {\n  color: #888;\n  font-style: italic; }\n\n.TableCell__content--formula {\n  position: relative; }\n  .TableCell__content--formula:after {\n    position: absolute;\n    content: \"\";\n    top: 5px;\n    right: 5px;\n    width: 5px;\n    height: 5px;\n    border-radius: 50%;\n    background-color: tomato;\n    display: block; }\n\n.TableCell__content--selected {\n  z-index: 10;\n  box-shadow: inset 0 0 0 3px dodgerblue;\n  position: absolute;\n  top: 0;\n  left: 0;\n  min-height: 100%; }\n\n.TableCell__content--editing {\n  box-shadow: inset 0 0 0 3px dodgerblue;\n  min-width: 100%;\n  min-height: 100%;\n  max-width: 200px;\n  max-height: 150px;\n  width: auto;\n  height: auto;\n  resize: none;\n  background: white;\n  overflow: auto;\n  text-align: left; }\n", ""]);
 
 // exports
 
@@ -43347,7 +43519,7 @@ exports = module.exports = __webpack_require__(111)(undefined);
 
 
 // module
-exports.push([module.i, ".TableHeader {\n  border-collapse: collapse;\n  table-layout: fixed; }\n\n.TableHeader__cell {\n  border: 1px solid #ccc; }\n  .TableHeader__cell:last-child {\n    border-right: 0; }\n  .TableHeader__cell:nth-child(2) {\n    border-left: 0; }\n\n.TableHeader__cell-content {\n  width: 100%;\n  color: #888;\n  white-space: pre;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  padding: 10px 5px; }\n\n.TableHeader__cell-content--select {\n  padding: 10px 15px; }\n\n.TableHeader__cell-fix {\n  width: 0;\n  overflow: hidden; }\n  .TableHeader__cell-fix:before {\n    content: \"X\";\n    display: block;\n    padding: 11px 0;\n    width: 0;\n    overflow: hidden; }\n", ""]);
+exports.push([module.i, ".TableHeader {\n  border-collapse: collapse;\n  table-layout: fixed; }\n\n.TableHeader__cell {\n  border: 1px solid #ccc; }\n  .TableHeader__cell:last-child {\n    border-right: 0; }\n  .TableHeader__thead--no-table .TableHeader__cell:first-child, .TableHeader__cell:nth-child(2) {\n    border-left: 0; }\n  .TableHeader__thead--no-table .TableHeader__row:first-child .TableHeader__cell {\n    border-top: 0; }\n\n.TableHeader__thead--no-table {\n  border-bottom: 2px solid #ccc; }\n\n.TableHeader__cell-content {\n  width: 100%;\n  color: #888;\n  white-space: pre;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  padding: 10px 5px; }\n\n.TableHeader__cell-content--select {\n  padding: 10px 15px; }\n\n.TableHeader__cell-fix {\n  width: 0;\n  overflow: hidden; }\n  .TableHeader__cell-fix:before {\n    content: \"X\";\n    display: block;\n    padding: 11px 0;\n    width: 0;\n    overflow: hidden; }\n", ""]);
 
 // exports
 
@@ -53165,4 +53337,4 @@ module.exports = __webpack_require__(742);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=preview.4631dcb26d07de374477.bundle.js.map
+//# sourceMappingURL=preview.ae17077edf0b7c3c9f68.bundle.js.map
