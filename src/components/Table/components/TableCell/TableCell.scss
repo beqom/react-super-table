@@ -22,6 +22,11 @@
 
 
 .TableCell__content {
+  font: inherit;
+  border: 0;
+  resize: none;
+  background: transparent;
+
   outline: 0;
   text-align: center;
   overflow: hidden;
@@ -33,6 +38,10 @@
   white-space: pre;
   text-overflow: ellipsis;
   padding: 10px 5px;
+}
+
+.TableCell__content--screen-reader:focus {
+  outline: 3px solid dodgerblue;
 }
 
 .TableCell__content--select {

@@ -5,10 +5,19 @@
   margin: auto;
   height: 100%;
   border: 1px solid #ccc;
-  border-top: 0;
+
   display: flex;
   flex-direction: column;
   position: relative;
+
+  &:not(.Table--screen-reader) {
+    border-top: 0;
+  }
+}
+
+.Table__screen-reader-table {
+  border-collapse: collapse;
+  table-layout: fixed;
 }
 
 

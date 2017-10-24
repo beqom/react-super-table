@@ -68,6 +68,7 @@ class TableRow extends React.Component {
         <TableCell
           key={columnKey}
           selected={selected}
+          screenReaderMode={this.props.screenReaderMode}
           editing={selected && selectedCellEditing}
           events={events}
           style={selected && selectedCellEditing ? {} : { width }}

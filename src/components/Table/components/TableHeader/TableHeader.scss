@@ -12,11 +12,19 @@
     border-right: 0;
   }
 
+  .TableHeader__thead--no-table &:first-child,
   &:nth-child(2) {
     border-left: 0;
   }
+
+  .TableHeader__thead--no-table .TableHeader__row:first-child & {
+    border-top: 0;
+  }
 }
 
+.TableHeader__thead--no-table {
+  border-bottom: 2px solid #ccc;
+}
 
 
 .TableHeader__cell-content {

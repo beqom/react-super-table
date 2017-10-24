@@ -71,15 +71,16 @@ class TableBody extends React.Component {
   }
 
   render() {
-    const { columns, rows, selectedCell = {} } = this.props;
+    const { columns, rows, noTable, selectedCell = {}, screenReaderMode } = this.props;
 
     const tbodies = rows.map(row => {
       const rowKey = row.get(this.props.rowKey);
-      const selectedColumnKey = selectedCell.rowKey === rowKey ? selectedCell.columnKey : null ;
+      const selectedColumnKey = selectedCell.rowKey === rowKey ? selectedCell.columnKey : null;
       const selectedCellEditing = selectedCell.rowKey === rowKey ? selectedCell.editing : false;
       return (
         <TableRow
           key={rowKey}
+          screenReaderMode={screenReaderMode}
           rowKey={rowKey}
           row={row}
           columns={columns}
@@ -96,9 +97,13 @@ class TableBody extends React.Component {
       );
     });
 
+    const tbody = <tbody>{tbodies}</tbody>;
+
+    if (noTable) return tbody;
+
     return (
       <table className="TableBody">
-        <tbody>{tbodies}</tbody>
+        {tbody}
       </table>
     );
   }
@@ -109,12 +114,12 @@ TableBody.displayName = 'TableBody';
 TableBody.defaultProps = {};
 
 TableBody.propTypes = {
-
   onEditCell: PropTypes.func.isRequired,
   onSelectCell: PropTypes.func.isRequired,
   onChangeSelectRow: PropTypes.func,
   onSwitchSelectedCell: PropTypes.func.isRequired,
 
+  noTable: PropTypes.bool,
 };
 
 export default TableBody;

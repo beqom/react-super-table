@@ -205,8 +205,60 @@ class Table extends React.Component {
     return <div className="Table__resize-row-helper" style={{ top }} />;
   }
 
-  render() {
+  renderForScreenReader() {
     const { rowKey, headerRowsCount, groups, rows, unfrozenColumns, frozenColumns } = this.props;
+    const columns = frozenColumns.concat(unfrozenColumns);
+    return (
+      <div
+        className="Table Table--screen-reader"
+        ref={node => {
+          this.containerNode = node;
+        }}
+      >
+        <div className="Table__content-container">
+          <div className="Table__content">
+            <table className="Table__screen-reader-table">
+              <TableHeader
+                noTable
+                onChangeSelectAllRows={this.props.onChangeSelectAllRows}
+                columns={columns}
+                groups={groups}
+                headerRowsCount={headerRowsCount}
+              />
+              <TableBody
+                screenReaderMode
+                noTable
+                onChangeSelectRow={this.props.onChangeSelectRow}
+                columns={columns}
+                rows={rows}
+                rowKey={rowKey}
+                selectedCell={this.state.selectedCell}
+                onSelectCell={this.handleSelectCell}
+                onUnselectCell={this.handleUnselectCell}
+                onEditSelectedCell={this.handleEditSelectedCell}
+                onEditCell={this.props.onEditCell}
+                onSetHoveredRowKey={this.handleSetHoveredRowKey}
+                hoveredRowKey={this.state.hoveredRowKey}
+              />
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    const {
+      rowKey,
+      headerRowsCount,
+      groups,
+      rows,
+      unfrozenColumns,
+      frozenColumns,
+      screenReaderMode,
+    } = this.props;
+
+    if (screenReaderMode) return this.renderForScreenReader();
 
     return (
       <div
@@ -347,6 +399,7 @@ Table.propTypes = {
   onEditCell: PropTypes.func.isRequired,
   onChangeSelectAllRows: PropTypes.func.isRequired,
   onChangeSelectRow: PropTypes.func.isRequired,
+  screenReaderMode: PropTypes.bool,
 };
 
 export default Table;
