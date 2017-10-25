@@ -33,6 +33,7 @@ class Table extends React.Component {
     this.handleResize = throttle(this.handleResize.bind(this), 50);
     this.handleResizeEnd = this.handleResizeEnd.bind(this);
     this.handleSelectCell = this.handleSelectCell.bind(this);
+    this.handleSwitchSelectedCell = this.handleSwitchSelectedCell.bind(this);
     this.handleUnselectCell = this.handleUnselectCell.bind(this);
     this.handleEditSelectedCell = this.handleEditSelectedCell.bind(this);
     this.handleSetHoveredRowKey = this.handleSetHoveredRowKey.bind(this);
@@ -121,7 +122,33 @@ class Table extends React.Component {
     }
   }
 
+  handleSwitchSelectedCell(columnDelta, rowDelta) {
+    const { selectedCell = {} } = this.state;
+    const { visibleColumns, rows } = this.props;
+    if (!selectedCell) return;
+
+    const selectedColumnIndex = visibleColumns.findIndex(column => column.get('key') === selectedCell.columnKey);
+    const selectedRowIndex = rows.findIndex(row => row.get(this.props.rowKey) === selectedCell.rowKey);
+
+    if (selectedColumnIndex < 0 || selectedRowIndex < 0) {
+      this.handleUnselectCell();
+      return;
+    }
+
+    const nextColumnIndex = Math.max(Math.min(visibleColumns.size - 1, selectedColumnIndex + columnDelta), 0);
+    const nextRowIndex = Math.max(Math.min(rows.size - 1, selectedRowIndex + rowDelta), 0);
+
+    if (selectedColumnIndex === nextColumnIndex && selectedRowIndex === nextRowIndex) return;
+
+    const columnKey = visibleColumns.getIn([nextColumnIndex, 'key']);
+    const rowKey = rows.getIn([nextRowIndex, this.props.rowKey]);
+
+    this.handleSelectCell(columnKey, rowKey);
+  }
+
   handleSelectCell(columnKey, rowKey) {
+    if (!columnKey || !rowKey) return;
+
     this.setState({
       selectedCell: { columnKey, rowKey, editing: false },
     });
@@ -273,7 +300,7 @@ class Table extends React.Component {
               rowKey={rowKey}
               selectedCell={this.state.selectedCell}
               onSelectCell={this.handleSelectCell}
-              onUnselectCell={this.handleUnselectCell}
+              onSwitchSelectedCell={this.handleSwitchSelectedCell}
               onEditSelectedCell={this.handleEditSelectedCell}
               onEditCell={this.props.onEditCell}
               onSetHoveredRowKey={this.handleSetHoveredRowKey}
@@ -292,8 +319,8 @@ class Table extends React.Component {
               rows={rows}
               rowKey={rowKey}
               selectedCell={this.state.selectedCell}
+              onSwitchSelectedCell={this.handleSwitchSelectedCell}
               onSelectCell={this.handleSelectCell}
-              onUnselectCell={this.handleUnselectCell}
               onEditSelectedCell={this.handleEditSelectedCell}
               onEditCell={this.props.onEditCell}
               onSetHoveredRowKey={this.handleSetHoveredRowKey}
@@ -312,7 +339,8 @@ Table.propTypes = {
   rowKey: PropTypes.string.isRequired,
   headerRowsCount: PropTypes.number.isRequired,
   groups: ImmutablePropTypes.listOf(Types.immutableGroup).isRequired,
-  // columns: ImmutablePropTypes.contains(Types.columnKeys).isRequired,
+  columns: ImmutablePropTypes.contains(Types.columnKeys).isRequired,
+  visibleColumns: ImmutablePropTypes.contains(Types.columnKeys).isRequired,
   unfrozenColumns: ImmutablePropTypes.listOf(Types.immutableColumn).isRequired,
   frozenColumns: ImmutablePropTypes.listOf(Types.immutableColumn).isRequired,
   rows: ImmutablePropTypes.listOf(ImmutablePropTypes.map).isRequired,

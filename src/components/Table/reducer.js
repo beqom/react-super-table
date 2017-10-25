@@ -32,6 +32,7 @@ function TableReducer(state = Immutable.Map(), action = {}) {
 
       return state
         .setIn([tableId, 'columns'], columns)
+        .setIn([tableId, 'visibleColumns'], visibleColumns)
         .setIn([tableId, 'frozenColumns'], visibleColumns.filter(c => c.getIn(['layout', 'frozen'])))
         .setIn([tableId, 'unfrozenColumns'], visibleColumns.filter(c => !c.getIn(['layout', 'frozen'])))
         .setIn([tableId, 'headerRowsCount'], getHeaderRowsCount(columns, groups) + 1)

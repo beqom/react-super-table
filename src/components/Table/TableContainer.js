@@ -66,6 +66,7 @@ class TableContainer extends Component {
         rowKey={rowKey}
         groups={store.get('groups')}
         columns={store.get('columns')}
+        visibleColumns={store.get('visibleColumns')}
         frozenColumns={store.get('frozenColumns')}
         unfrozenColumns={store.get('unfrozenColumns')}
         rows={store.get('displayableRows')}
