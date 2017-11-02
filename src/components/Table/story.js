@@ -39,7 +39,7 @@ storiesOf('Table', module)
 
     return (
       <Provider store={store}>
-        <div style={{ margin: 50, height: 500 }}>{story()}</div>
+        <div style={{ margin: 50 }}>{story()}</div>
       </Provider>
     );
   })
@@ -51,7 +51,7 @@ storiesOf('Table', module)
       screenReaderMode={boolean('screenReaderMode', false)}
       groups={data.groups}
       columns={columns}
-      rows={data.rows}
+      rows={data.rows.slice(0, 10)}
       rowKey="id"
     />
   ));

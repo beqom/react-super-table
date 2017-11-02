@@ -29,12 +29,12 @@ class TableContainer extends Component {
     props.setRows(rows);
     props.setDisplayableRows(formatRows(rows, columns));
 
-    this.handleEditCell = this.handleEditCell.bind(this);
+    this.handleChangeCell = this.handleChangeCell.bind(this);
     this.handleChangeSelectAllRows = this.handleChangeSelectAllRows.bind(this);
     this.handleChangeSelectRow = this.handleChangeSelectRow.bind(this);
   }
 
-  handleEditCell(rowKey, columnKey, value) {
+  handleChangeCell(columnKey, rowKey, value) {
     const rows = this.props.store.get('rows');
     const columns = this.props.store.get('columns');
     const displayableRows = this.props.store.get('displayableRows');
@@ -71,7 +71,7 @@ class TableContainer extends Component {
         unfrozenColumns={store.get('unfrozenColumns')}
         rows={store.get('displayableRows')}
         headerRowsCount={store.get('headerRowsCount')}
-        onEditCell={this.handleEditCell}
+        onChangeCell={this.handleChangeCell}
         onChangeSelectAllRows={this.handleChangeSelectAllRows}
         onChangeSelectRow={this.handleChangeSelectRow}
         screenReaderMode={this.props.screenReaderMode}

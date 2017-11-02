@@ -3,7 +3,9 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import Immutable from 'immutable';
 import range from 'lodash/range';
+import ImmutablePropTypes from 'react-immutable-proptypes';
 
+import Types from '../../Types';
 import './TableHeader.scss';
 
 
@@ -44,7 +46,7 @@ class TableHeader extends React.Component {
   }
 
   renderSelectAllRows(rowIndex) {
-    if (!this.props.onChangeSelectAllRows || rowIndex !== 0) return null;
+    if (rowIndex !== 0) return null;
 
     return (
       <th className="TableHeader__cell" rowSpan={this.props.headerRowsCount}>
@@ -75,7 +77,6 @@ class TableHeader extends React.Component {
 
     return (
       <tr key={rowIndex} className="TableHeader__row">
-        {!this.props.noTable && (<th className="TableHeader__cell-fix" />)}
         {this.renderSelectAllRows(rowIndex)}
         {headers}
       </tr>
@@ -83,7 +84,7 @@ class TableHeader extends React.Component {
   }
 
   render() {
-    const { noTable, columns, className, headerRowsCount } = this.props;
+    const { columns, className, headerRowsCount } = this.props;
 
     const headers = this.getHeaders(columns);
     const headerRows = headers.map((header, index) =>
@@ -93,19 +94,11 @@ class TableHeader extends React.Component {
       this.renderHeaderRow([], headers.size + i));
 
 
-    const thead = (
-      <thead className={classnames('TableHeader__thead', { 'TableHeader__thead--no-table': noTable })}>
+    return (
+      <thead className={classnames('TableHeader__thead', className)}>
         {headerRows}
         {headerRowsCountDeltaRows}
       </thead>
-    );
-
-    if (noTable) return thead;
-
-    return (
-      <table className={classnames('TableHeader', className)}>
-        {thead}
-      </table>
     );
   }
 }
@@ -115,9 +108,11 @@ TableHeader.displayName = 'TableHeader';
 TableHeader.defaultProps = {};
 
 TableHeader.propTypes = {
+  groups: ImmutablePropTypes.listOf(Types.immutableGroup).isRequired,
+  columns: ImmutablePropTypes.contains(Types.columnKeys).isRequired,
   className: PropTypes.string,
-  children: PropTypes.any,
-  noTable: PropTypes.bool,
+  headerRowsCount: PropTypes.number.isRequired,
+  onChangeSelectAllRows: PropTypes.func.isRequired,
 };
 
 export default TableHeader;

@@ -40,6 +40,10 @@ class TableBody extends React.Component {
         if (e.shiftKey) return this.selectCellLeft(e);
         return this.selectCellRight(e);
       }
+      case 'Escape': {
+        this.props.onCancelEditSelectedCell();
+        return;
+      }
       case 'Enter': {
         e.preventDefault();
         if (selectedCell.editing) return this.selectCellBelow();
@@ -71,7 +75,7 @@ class TableBody extends React.Component {
   }
 
   render() {
-    const { columns, rows, noTable, selectedCell = {}, screenReaderMode } = this.props;
+    const { columns, rows, selectedCell = {} } = this.props;
 
     const tbodies = rows.map(row => {
       const rowKey = row.get(this.props.rowKey);
@@ -80,32 +84,20 @@ class TableBody extends React.Component {
       return (
         <TableRow
           key={rowKey}
-          screenReaderMode={screenReaderMode}
           rowKey={rowKey}
           row={row}
           columns={columns}
           selectedColumnKey={selectedColumnKey}
           onSelectCell={this.props.onSelectCell}
-          onEditSelectedCell={this.props.onEditSelectedCell}
           onChangeSelectRow={this.props.onChangeSelectRow}
           onEditCell={this.props.onEditCell}
           selectedCellEditing={selectedCellEditing}
           handleKeyPress={this.handleKeyPress}
-          onSetHoveredRowKey={this.props.onSetHoveredRowKey}
-          hovered={this.props.hoveredRowKey === rowKey}
+          onChangeCell={this.props.onChangeCell}
         />
       );
     });
-
-    const tbody = <tbody>{tbodies}</tbody>;
-
-    if (noTable) return tbody;
-
-    return (
-      <table className="TableBody">
-        {tbody}
-      </table>
-    );
+    return <tbody className="TableBody">{tbodies}</tbody>;
   }
 }
 
@@ -114,12 +106,11 @@ TableBody.displayName = 'TableBody';
 TableBody.defaultProps = {};
 
 TableBody.propTypes = {
+  rowKey: PropTypes.string.isRequired,
   onEditCell: PropTypes.func.isRequired,
   onSelectCell: PropTypes.func.isRequired,
   onChangeSelectRow: PropTypes.func,
   onSwitchSelectedCell: PropTypes.func.isRequired,
-
-  noTable: PropTypes.bool,
 };
 
 export default TableBody;
