@@ -48,10 +48,9 @@ storiesOf('Table', module)
     <TableContainer
       tableId="playground"
       reducerName="Table"
-      screenReaderMode={boolean('screenReaderMode', false)}
       groups={data.groups}
       columns={columns}
-      rows={data.rows.slice(0, 10)}
+      rows={boolean('empty', false) ? [] : data.rows.slice(0, 10)}
       rowKey="id"
     />
   ));

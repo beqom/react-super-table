@@ -77,6 +77,18 @@ class TableBody extends React.Component {
   render() {
     const { columns, rows, selectedCell = {} } = this.props;
 
+    if (!rows.size) {
+      return (
+        <tbody className="TableBody">
+          <tr>
+            <td className="TableBody__empty-cell" colSpan={columns.size + 1}>
+              <div className="TableBody__empty-content">No results found</div>
+            </td>
+          </tr>
+        </tbody>
+      );
+    }
+
     const tbodies = rows.map(row => {
       const rowKey = row.get(this.props.rowKey);
       const selectedColumnKey = selectedCell.rowKey === rowKey ? selectedCell.columnKey : null;
