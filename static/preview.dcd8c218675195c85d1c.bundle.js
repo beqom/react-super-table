@@ -41061,6 +41061,26 @@ var TableBody = function (_React$Component) {
           selectedCell = _props$selectedCell === undefined ? {} : _props$selectedCell;
 
 
+      if (!rows.size) {
+        return _react2.default.createElement(
+          'tbody',
+          { className: 'TableBody' },
+          _react2.default.createElement(
+            'tr',
+            null,
+            _react2.default.createElement(
+              'td',
+              { className: 'TableBody__empty-cell', colSpan: columns.size + 1 },
+              _react2.default.createElement(
+                'div',
+                { className: 'TableBody__empty-content' },
+                'No results found'
+              )
+            )
+          )
+        );
+      }
+
       var tbodies = rows.map(function (row) {
         var rowKey = row.get(_this2.props.rowKey);
         var selectedColumnKey = selectedCell.rowKey === rowKey ? selectedCell.columnKey : null;
@@ -42163,10 +42183,9 @@ var columns = _immutable2.default.fromJS(_data2.default.columns).map(function (c
   return _react2.default.createElement(_TableContainer2.default, {
     tableId: 'playground',
     reducerName: 'Table',
-    screenReaderMode: (0, _addonKnobs.boolean)('screenReaderMode', false),
     groups: _data2.default.groups,
     columns: columns,
-    rows: _data2.default.rows.slice(0, 10),
+    rows: (0, _addonKnobs.boolean)('empty', false) ? [] : _data2.default.rows.slice(0, 10),
     rowKey: 'id'
   });
 });
@@ -43359,7 +43378,7 @@ exports = module.exports = __webpack_require__(111)(undefined);
 
 
 // module
-exports.push([module.i, ".TableBody {\n  border-collapse: collapse;\n  table-layout: fixed; }\n", ""]);
+exports.push([module.i, ".TableBody {\n  border-collapse: collapse;\n  table-layout: fixed; }\n\n.TableBody__empty-cell {\n  height: 200px; }\n\n.TableBody__empty-content {\n  position: absolute;\n  width: 100%;\n  text-align: center;\n  font-size: 1.4rem;\n  color: #92999f;\n  bottom: 100px;\n  left: 0; }\n", ""]);
 
 // exports
 
@@ -53205,4 +53224,4 @@ module.exports = __webpack_require__(742);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=preview.8da61f7caa42c1268a5b.bundle.js.map
+//# sourceMappingURL=preview.dcd8c218675195c85d1c.bundle.js.map
