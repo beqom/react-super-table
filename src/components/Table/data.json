@@ -97,7 +97,7 @@
       "title": "Active",
       "order": 8,
       "dataType": "boolean",
-      "layout": { "visible": true, "frozen": false, "width": 40 },
+      "layout": { "visible": true, "frozen": false, "width": 50 },
       "editable": false,
       "formula": null,
       "formatter": null,

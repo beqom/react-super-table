@@ -6,7 +6,7 @@
 }
 
 .TableHeader__cell {
-  border: 1px solid #ccc;
+  border: 1px solid $color__grey--light;
 
   &:last-child {
     border-right: 0;
@@ -15,32 +15,24 @@
   &:first-child {
     border-left: 0;
   }
+
+  tr:first-child & {
+    border-top: 0;
+  }
 }
 
 
 .TableHeader__cell-content {
   width: 100%;
-  color: #888;
+  color: $color__grey;
+  font-weight: normal;
   white-space: pre;
   text-overflow: ellipsis;
   overflow: hidden;
 
-  padding: 10px 5px;
+  padding: $cell-padding;
 }
 
 .TableHeader__cell-content--select {
-  padding: 10px 15px;
-}
-
-.TableHeader__cell-fix {
-  width: 0;
-  overflow: hidden;
-
-  &:before {
-    content: "X";
-    display: block;
-    padding: 11px 0;
-    width: 0;
-    overflow: hidden;
-  }
+  // padding: 10px 15px;
 }
