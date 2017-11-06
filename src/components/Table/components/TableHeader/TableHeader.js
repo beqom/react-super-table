@@ -5,9 +5,20 @@ import Immutable from 'immutable';
 import range from 'lodash/range';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 
-import Types from '../../Types';
+import Types from '../../../../Types';
 import './TableHeader.scss';
 
+const CaretUp = ({ size = 8 }) => (
+  <svg width={size} height={size} viewBox="0 0 8 8">
+    <path fill="currentColor" d="M4,2 l4,5 h-8 z" />
+  </svg>
+);
+
+const CaretDown = ({ size = 8 }) => (
+  <svg width={size} height={size} viewBox="0 0 8 8">
+    <path fill="currentColor" d="M4,6 l4,-5 h-8 z" />
+  </svg>
+);
 
 class TableHeader extends React.Component {
   shouldComponentUpdate(nextProps) {
@@ -46,7 +57,7 @@ class TableHeader extends React.Component {
   }
 
   renderSelectAllRows(rowIndex) {
-    if (rowIndex !== 0) return null;
+    if (rowIndex !== 0 || !this.props.onChangeSelectAllRows) return null;
 
     return (
       <th className="TableHeader__cell" rowSpan={this.props.headerRowsCount}>
@@ -58,19 +69,50 @@ class TableHeader extends React.Component {
   }
 
   renderHeaderRow(columns, rowIndex, rowsCount) {
+    const { sort } = this.props;
     const headers = columns.map(column => {
       const columnsCount = column.get('columnsCount');
       const layout = column.get('layout');
       const style = layout ? { width: layout.get('width') } : {};
+      const columnKey = column.get('key');
+      const isColumnSorted = sort && sort.get('columnKey') === columnKey;
       return (
         <th
-          key={column.get('key')}
+          key={columnKey}
           className="TableHeader__cell"
           colSpan={columnsCount || 0}
           rowSpan={columnsCount ? 0 : rowsCount - rowIndex}
           scope={columnsCount ? 'colgroup' : 'col'}
         >
-          <div className="TableHeader__cell-content" style={style}>{column.get('title')}</div>
+          {columnsCount || !this.props.onSort ? (
+            <div className="TableHeader__cell-content" style={style}>
+              {column.get('title')}
+            </div>
+          ) : (
+            <button
+              className="TableHeader__cell-content TableHeader__cell-content--sortable"
+              style={style}
+              onClick={() => this.props.onSort(columnKey)}
+            >
+              <div className="TableHeader__cell-value">{column.get('title')}</div>
+              <div className="TableHeader__cell-sort-buttons">
+                <div
+                  className={classnames('TableHeader__sort', {
+                    'TableHeader__sort--active': isColumnSorted && sort.get('way') === 1,
+                  })}
+                >
+                  <CaretUp />
+                </div>
+                <div
+                  className={classnames('TableHeader__sort', {
+                    'TableHeader__sort--active': isColumnSorted && sort.get('way') === -1,
+                  })}
+                >
+                  <CaretDown />
+                </div>
+              </div>
+            </button>
+          )}
         </th>
       );
     });
@@ -88,18 +130,10 @@ class TableHeader extends React.Component {
 
     const headers = this.getHeaders(columns);
     const headerRows = headers.map((header, index) =>
-      this.renderHeaderRow(header, index, headerRowsCount));
-
-    const headerRowsCountDeltaRows = range(headerRowsCount - headers.size).map(i =>
-      this.renderHeaderRow([], headers.size + i));
-
-
-    return (
-      <thead className={classnames('TableHeader__thead', className)}>
-        {headerRows}
-        {headerRowsCountDeltaRows}
-      </thead>
+      this.renderHeaderRow(header, index, headerRowsCount)
     );
+
+    return <thead className={classnames('TableHeader', className)}>{headerRows}</thead>;
   }
 }
 
@@ -112,7 +146,8 @@ TableHeader.propTypes = {
   columns: ImmutablePropTypes.contains(Types.columnKeys).isRequired,
   className: PropTypes.string,
   headerRowsCount: PropTypes.number.isRequired,
-  onChangeSelectAllRows: PropTypes.func.isRequired,
+  onChangeSelectAllRows: PropTypes.func,
+  onSort: PropTypes.func,
 };
 
 export default TableHeader;

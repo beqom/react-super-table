@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 
-import Types from '../../Types';
+import Types from '../../../../Types';
 import TableRow from '../TableRow';
 
 import './TableBody.scss';
@@ -123,6 +123,7 @@ TableBody.propTypes = {
   onSelectCell: PropTypes.func.isRequired,
   onChangeSelectRow: PropTypes.func,
   onSwitchSelectedCell: PropTypes.func.isRequired,
+  onChangeCell: PropTypes.func,
 };
 
 export default TableBody;

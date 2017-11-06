@@ -2,12 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import throttle from 'lodash/throttle';
-import Immutable from 'immutable';
-import classnames from 'classnames';
-import IconPin from 'react-icons/lib/go/pin';
-import debounce from 'lodash/debounce';
 
-import Types from './Types';
+import Types from '../..//Types';
 import TableHeader from './components/TableHeader';
 import TableBody from './components/TableBody';
 import './Table.scss';
@@ -180,7 +176,7 @@ class Table extends React.Component {
   }
 
   render() {
-    const { rowKey, headerRowsCount, groups, rows, visibleColumns } = this.props;
+    const { rowKey, headerRowsCount, groups, rows, columns, columnsCount } = this.props;
 
     return (
       <div
@@ -191,17 +187,19 @@ class Table extends React.Component {
       >
         <div className="Table__content-container">
           <div className="Table__content">
-            <table className="Table__screen-reader-table">
+            <table className="Table__table" aria-colcount={columnsCount || columns.size}>
               <TableHeader
                 noTable
                 onChangeSelectAllRows={this.props.onChangeSelectAllRows}
-                columns={visibleColumns}
+                columns={columns}
                 groups={groups}
                 headerRowsCount={headerRowsCount}
+                onSort={this.props.onSort}
+                sort={this.props.sort}
               />
               <TableBody
                 onChangeSelectRow={this.props.onChangeSelectRow}
-                columns={visibleColumns}
+                columns={columns}
                 rows={rows}
                 rowKey={rowKey}
                 selectedCell={this.state.selectedCell}
@@ -228,11 +226,11 @@ Table.propTypes = {
   headerRowsCount: PropTypes.number.isRequired,
   groups: ImmutablePropTypes.listOf(Types.immutableGroup).isRequired,
   columns: ImmutablePropTypes.contains(Types.columnKeys).isRequired,
-  visibleColumns: ImmutablePropTypes.contains(Types.columnKeys).isRequired,
+  columnsCount: PropTypes.number,
   rows: ImmutablePropTypes.listOf(ImmutablePropTypes.map).isRequired,
-  onChangeCell: PropTypes.func.isRequired,
-  onChangeSelectAllRows: PropTypes.func.isRequired,
-  onChangeSelectRow: PropTypes.func.isRequired,
+  onChangeCell: PropTypes.func,
+  onChangeSelectAllRows: PropTypes.func,
+  onChangeSelectRow: PropTypes.func,
 };
 
 /*

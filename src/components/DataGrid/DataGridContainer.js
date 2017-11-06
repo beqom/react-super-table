@@ -10,43 +10,88 @@ import {
   setRows,
   setGroups,
   setDisplayableRows,
+  sort,
 } from './actions';
-import { formatRows } from './libs/helpers';
-import Types from './Types';
-import Table from './Table';
+import { formatRows } from '../../libs/helpers';
+import Types from '../../Types';
+import Table from '../Table';
 
-class TableContainer extends Component {
+class DataGridContainer extends Component {
   constructor(props) {
     super(props);
 
-    const rows = Immutable.fromJS(props.rows);
-    const columns = Immutable.fromJS(props.columns);
-    const groups = Immutable.fromJS(props.groups);
-
     props.initStore();
-    props.setGroups(groups);
-    props.setColumns(columns);
-    props.setRows(rows);
-    props.setDisplayableRows(formatRows(rows, columns));
+    this.fetchData();
 
     this.handleChangeCell = this.handleChangeCell.bind(this);
     this.handleChangeSelectAllRows = this.handleChangeSelectAllRows.bind(this);
     this.handleChangeSelectRow = this.handleChangeSelectRow.bind(this);
+    this.handleSort = this.handleSort.bind(this);
+  }
+
+  componentDidUpdate(prevProps) {
+    const nextSort = this.props.store && this.props.store.get('sort');
+    const prevSort = prevProps.store && prevProps.store.get('sort');
+    if (prevSort !== nextSort) {
+      this.fetchData();
+    }
+  }
+
+  getDataFetchingSetting() {
+    const { store } = this.props;
+    if (!store) return {};
+
+    return {
+      sort: store.get('sort').toJS(),
+    }
+  }
+
+  fetchData() {
+    const settings = this.getDataFetchingSetting();
+
+    this.props.fetchData(settings)
+      .then(({ groups, columns, rows }) => {
+        this.props.setGroups(groups);
+        this.props.setColumns(columns);
+        this.props.setRows(rows.slice(0, 10));
+        this.props.setDisplayableRows(formatRows(rows, columns));
+      });
   }
 
   handleChangeCell(columnKey, rowKey, value) {
     const rows = this.props.store.get('rows');
     const columns = this.props.store.get('columns');
-    const displayableRows = this.props.store.get('displayableRows');
     const column = columns.find(c => c.get('key') === columnKey);
-    const formatter = column.get('formatter');
     const parser = column.get('parser');
     const parsedValue = parser(value);
-    const formattedValue = formatter(parsedValue);
     const rowIndex = rows.findIndex(r => r.get(this.props.rowKey) === rowKey);
 
-    this.props.setRows(rows.setIn([rowIndex, columnKey], parsedValue));
-    this.props.setDisplayableRows(displayableRows.setIn([rowIndex, columnKey], formattedValue));
+    const promise = this.props.onChangeCell({
+      rows,
+      rowIndex,
+      row: rows.get(rowIndex),
+      value: parsedValue,
+      key: columnKey,
+      columns,
+      column,
+    });
+
+    if( promise && promise.then ) {
+      promise.then(newRows => {
+        this.props.setRows(newRows);
+        this.props.setDisplayableRows(formatRows(newRows, columns));
+      });
+    } else {
+      const displayableRows = this.props.store.get('displayableRows');
+      const formatter = column.get('formatter');
+      const formattedValue = formatter(parsedValue);
+      this.props.setRows(rows.setIn([rowIndex, columnKey], parsedValue));
+      this.props.setDisplayableRows(displayableRows.setIn([rowIndex, columnKey], formattedValue));
+    }
+  }
+
+  handleSort(columnKey) {
+    this.props.sort(columnKey);
   }
 
   handleChangeSelectAllRows() {
@@ -67,23 +112,22 @@ class TableContainer extends Component {
         groups={store.get('groups')}
         columns={store.get('columns')}
         visibleColumns={store.get('visibleColumns')}
-        frozenColumns={store.get('frozenColumns')}
-        unfrozenColumns={store.get('unfrozenColumns')}
         rows={store.get('displayableRows')}
         headerRowsCount={store.get('headerRowsCount')}
         onChangeCell={this.handleChangeCell}
         onChangeSelectAllRows={this.handleChangeSelectAllRows}
         onChangeSelectRow={this.handleChangeSelectRow}
-        screenReaderMode={this.props.screenReaderMode}
+        onSort={this.handleSort}
+        sort={store.get('sort')}
       />
     );
   }
 };
 
 
-TableContainer.displayName = 'TableContainer';
+DataGridContainer.displayName = 'DataGridContainer';
 
-TableContainer.propTypes = {
+DataGridContainer.propTypes = {
   // tableId & reducerName are used in redux
   // eslint-disable-next-line react/no-unused-prop-types
   tableId: PropTypes.string.isRequired,
@@ -91,9 +135,8 @@ TableContainer.propTypes = {
   reducerName: PropTypes.string.isRequired,
   screenReaderMode: PropTypes.bool,
   rowKey: PropTypes.string.isRequired,
-  groups: PropTypes.arrayOf(Types.group).isRequired,
-  columns: PropTypes.arrayOf(Types.column).isRequired,
-  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  fetchData: PropTypes.func.isRequired,
+  onChangeCell: PropTypes.func.isRequired,
   // actions
   initStore: PropTypes.func.isRequired,
   setGroups: PropTypes.func.isRequired,
@@ -118,8 +161,8 @@ const mapDispatchToProps = (dispatch, props) => {
     setRows: compose(dispatch, setRows(tableId)),
     setGroups: compose(dispatch, setGroups(tableId)),
     setDisplayableRows: compose(dispatch, setDisplayableRows(tableId)),
+    sort: compose(dispatch, sort(tableId)),
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TableContainer);
-
+export default connect(mapStateToProps, mapDispatchToProps)(DataGridContainer);

@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 
-import Types from '../../Types';
+import Types from '../../../../Types';
 import TableCell from '../TableCell';
 
 import './TableRow.scss';
@@ -86,7 +86,7 @@ TableRow.propTypes = {
   onSelectCell: PropTypes.func.isRequired,
   onChangeSelectRow: PropTypes.func,
   onEditCell: PropTypes.func.isRequired,
-  onChangeCell: PropTypes.func.isRequired,
+  onChangeCell: PropTypes.func,
   handleKeyPress: PropTypes.func.isRequired,
 };
 

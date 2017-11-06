@@ -47,6 +47,7 @@ addDecorator(fixAddonInfo);
 addDecorator(withKnobs);
 
 function loadStories() {
+  require('../src/components/DataGrid/story');
   require('../src/components/Table/story');
 }
 

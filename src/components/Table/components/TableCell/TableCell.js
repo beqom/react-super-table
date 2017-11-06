@@ -96,8 +96,8 @@ class TableCell extends React.Component {
   }
 
   handleSubmitValue() {
-    if (this.state.value !== this.props.value) {
-      const { columnKey, rowKey, onChangeCell } = this.props;
+    const { columnKey, rowKey, onChangeCell, value } = this.props;
+    if (this.state.value !== value && onChangeCell) {
       onChangeCell(columnKey, rowKey, this.state.value);
     }
   }
