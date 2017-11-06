@@ -1,36 +1,28 @@
-
-export const trace = (x, ...msg) => (console.log(...[...msg, x]), x);
-
-export const numToAlpha = n => {
-  const alphabet = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z"
-  ];
-  const len = alphabet.length;
-  if (n < len) return alphabet[n];
-  return numToAlpha(Math.floor(n / len) - 1) + numToAlpha(n % len);
+export const getHeaderRowsCount = (columns, groups) => {
+  const colGroups = columns
+    .filter(column => column.getIn(['layout', 'visible']) !== false)
+    .map(column => column.get('group'))
+    .filter((key, i, arr) => !!key && arr.indexOf(key) === i)
+    .map(key => groups.find(g => g.get('key') === key))
+    .filter(g => !!g);
+  if (colGroups.size) {
+    return 1 + getHeaderRowsCount(colGroups, groups);
+  }
+  return 0;
 };
+
+export const sortColumns = columns =>
+  columns.sort((a, b) => {
+    if (a.order < b.order) return -1;
+    if (a.order > b.order) return 1;
+    return 0;
+  });
+
+
+export const formatRows = (rows, columns) =>
+  rows.map(row => columns.reduce((acc, column) => {
+    const formatter = column.get('formatter');
+    const columnKey = column.get('key');
+    const value = row.get(columnKey);
+    return acc.set(columnKey, formatter(value));
+  }, row));

@@ -6,17 +6,19 @@ import {
   TABLE_SET_ROWS,
   TABLE_SET_GROUPS,
   TABLE_SET_DISPLAYABLE_ROWS,
+  TABLE_SORT,
 } from './constants';
 
-import { getHeaderRowsCount, sortColumns } from './libs/helpers';
+import { getHeaderRowsCount, sortColumns } from '../../libs/helpers';
 
 const initialState = Immutable.Map({
   groups: Immutable.List(),
   columns: Immutable.List(),
-  frozenColumns: Immutable.List(),
-  unfrozenColumns: Immutable.List(),
+  hiddenColumns: Immutable.Map(),
+  sort: Immutable.Map(),
   rows: Immutable.List(),
   displayableRows: Immutable.List(),
+  headerRowsCount: 1,
 });
 
 function TableReducer(state = Immutable.Map(), action = {}) {
@@ -32,9 +34,8 @@ function TableReducer(state = Immutable.Map(), action = {}) {
 
       return state
         .setIn([tableId, 'columns'], columns)
-        .setIn([tableId, 'frozenColumns'], visibleColumns.filter(c => c.getIn(['layout', 'frozen'])))
-        .setIn([tableId, 'unfrozenColumns'], visibleColumns.filter(c => !c.getIn(['layout', 'frozen'])))
-        .setIn([tableId, 'headerRowsCount'], getHeaderRowsCount(columns, groups) + 1)
+        .setIn([tableId, 'visibleColumns'], visibleColumns)
+        .setIn([tableId, 'headerRowsCount'], getHeaderRowsCount(visibleColumns, groups) + 1)
     }
 
     case TABLE_SET_ROWS: {
@@ -54,6 +55,18 @@ function TableReducer(state = Immutable.Map(), action = {}) {
       return state
         .setIn([tableId, 'groups'], groups)
         .setIn([tableId, 'headerRowsCount'], getHeaderRowsCount(columns, groups) + 1);
+    }
+
+    case TABLE_SORT: {
+      const { tableId, columnKey, way } = action.payload;
+      const sort = state.getIn([tableId, 'sort']);
+      const newWay = way || sort.get('columnKey') === columnKey
+        ? sort.get('way') * -1
+        : 1;
+
+      return state
+        .setIn([tableId, 'sort', 'columnKey'], columnKey)
+        .setIn([tableId, 'sort', 'way'], newWay)
     }
 
     default:

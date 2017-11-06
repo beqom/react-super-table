@@ -1,5 +1,5 @@
 @import "../../../../style/inc";
 
-.TableRow--hovered {
-  background-color: rgb(221, 238, 253);
+.TableRow:hover {
+  background-color: $color__primary--light;
 }

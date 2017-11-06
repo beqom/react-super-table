@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 
-import Types from '../../Types';
+import Types from '../../../../Types';
 import TableRow from '../TableRow';
 
 import './TableBody.scss';
@@ -40,6 +40,10 @@ class TableBody extends React.Component {
         if (e.shiftKey) return this.selectCellLeft(e);
         return this.selectCellRight(e);
       }
+      case 'Escape': {
+        this.props.onCancelEditSelectedCell();
+        return;
+      }
       case 'Enter': {
         e.preventDefault();
         if (selectedCell.editing) return this.selectCellBelow();
@@ -51,48 +55,43 @@ class TableBody extends React.Component {
   }
 
   selectCellAbove(e) {
-    return this.selectCell(0, -1, e);
+    if (e) e.preventDefault();
+    this.props.onSwitchSelectedCell(0, -1);
   }
 
   selectCellBelow(e) {
-    return this.selectCell(0, 1, e);
+    if (e) e.preventDefault();
+    this.props.onSwitchSelectedCell(0, 1);
   }
 
   selectCellRight(e) {
-    return this.selectCell(1, 0, e);
+    if (e) e.preventDefault();
+    this.props.onSwitchSelectedCell(1, 0);
   }
 
   selectCellLeft(e) {
-    return this.selectCell(-1, 0, e);
-  }
-
-  selectCell(columnDelta, rowDelta, e) {
-    const { selectedCell = {}, columns, rows } = this.props;
-    if (!selectedCell) return;
     if (e) e.preventDefault();
-
-    const selectedColumnIndex = this.props.columns.findIndex(column => column.get('key') === selectedCell.columnKey);
-    const selectedRowIndex = this.props.rows.findIndex(row => row.get(this.props.rowKey) === selectedCell.rowKey);
-
-    if (selectedColumnIndex < 0 || selectedRowIndex < 0) return this.props.onUnselectCell();
-
-    const nextColumnIndex = Math.max(Math.min(columns.size, selectedColumnIndex + columnDelta), 0);
-    const nextRowIndex = Math.max(Math.min(rows.size, selectedRowIndex + rowDelta), 0);
-
-    if (selectedColumnIndex === nextColumnIndex && selectedRowIndex === nextRowIndex) return;
-
-    const columnKey = this.props.columns.getIn([nextColumnIndex, 'key']);
-    const rowKey = this.props.rows.getIn([nextRowIndex, this.props.rowKey]);
-
-    this.props.onSelectCell(columnKey, rowKey);
+    this.props.onSwitchSelectedCell(-1, 0);
   }
 
   render() {
     const { columns, rows, selectedCell = {} } = this.props;
 
+    if (!rows.size) {
+      return (
+        <tbody className="TableBody">
+          <tr>
+            <td className="TableBody__empty-cell" colSpan={columns.size + 1}>
+              <div className="TableBody__empty-content">No results found</div>
+            </td>
+          </tr>
+        </tbody>
+      );
+    }
+
     const tbodies = rows.map(row => {
       const rowKey = row.get(this.props.rowKey);
-      const selectedColumnKey = selectedCell.rowKey === rowKey ? selectedCell.columnKey : null ;
+      const selectedColumnKey = selectedCell.rowKey === rowKey ? selectedCell.columnKey : null;
       const selectedCellEditing = selectedCell.rowKey === rowKey ? selectedCell.editing : false;
       return (
         <TableRow
@@ -102,22 +101,15 @@ class TableBody extends React.Component {
           columns={columns}
           selectedColumnKey={selectedColumnKey}
           onSelectCell={this.props.onSelectCell}
-          onEditSelectedCell={this.props.onEditSelectedCell}
           onChangeSelectRow={this.props.onChangeSelectRow}
           onEditCell={this.props.onEditCell}
           selectedCellEditing={selectedCellEditing}
           handleKeyPress={this.handleKeyPress}
-          onSetHoveredRowKey={this.props.onSetHoveredRowKey}
-          hovered={this.props.hoveredRowKey === rowKey}
+          onChangeCell={this.props.onChangeCell}
         />
       );
     });
-
-    return (
-      <table className="TableBody">
-        <tbody>{tbodies}</tbody>
-      </table>
-    );
+    return <tbody className="TableBody">{tbodies}</tbody>;
   }
 }
 
@@ -126,12 +118,12 @@ TableBody.displayName = 'TableBody';
 TableBody.defaultProps = {};
 
 TableBody.propTypes = {
-
+  rowKey: PropTypes.string.isRequired,
   onEditCell: PropTypes.func.isRequired,
-  onUnselectCell: PropTypes.func.isRequired,
   onSelectCell: PropTypes.func.isRequired,
   onChangeSelectRow: PropTypes.func,
-
+  onSwitchSelectedCell: PropTypes.func.isRequired,
+  onChangeCell: PropTypes.func,
 };
 
 export default TableBody;

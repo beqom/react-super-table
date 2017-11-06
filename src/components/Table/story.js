@@ -7,11 +7,11 @@ import Immutable from 'immutable';
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 
-import TableContainer from './TableContainer';
-import reducer from './reducer';
+import Table from './Table';
+
 import README from './README.md';
 
-import data from './data.json';
+import data from '../../data.json';
 
 const FORMATTERS = {
   CURRENCY: x => `$ ${parseFloat(x, 10).toFixed(2)}`,
@@ -29,29 +29,24 @@ const columns = Immutable.fromJS(data.columns)
     col
       .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
       .set('parser', PARSERS[col.get('parser') || 'IDENTITY'])
-  )
-  .toJS();
+  );
+
+const rows = Immutable.fromJS(data.rows);
+const groups = Immutable.fromJS(data.groups);
+
 
 storiesOf('Table', module)
   .addDecorator(withReadme(README))
-  .addDecorator(story => {
-    const store = createStore(combineReducers({ Table: reducer }));
-
-    return (
-      <Provider store={store}>
-        <div style={{ margin: 50, height: 500 }}>{story()}</div>
-      </Provider>
-    );
-  })
+  .addDecorator(story => (
+    <div style={{ margin: 50 }}>{story()}</div>
+    ))
   // .addWithJSX('playground', () => (
   .add('playground', () => (
-    <TableContainer
-      tableId="playground"
-      reducerName="Table"
-      editable={boolean('editable', true)}
-      groups={data.groups}
+    <Table
+      groups={groups}
       columns={columns}
-      rows={data.rows}
+      headerRowsCount={2}
+      rows={boolean('empty', false) ? [] : rows.slice(0, number('rows', 10))}
       rowKey="id"
     />
   ));

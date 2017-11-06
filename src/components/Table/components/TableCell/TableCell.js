@@ -14,8 +14,12 @@ class TableCell extends React.Component {
     };
 
     this.setContentNode = this.setContentNode.bind(this);
+    this.setTexteareaNode = this.setTexteareaNode.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleEditCell = this.handleEditCell.bind(this);
+    this.handleTexteareaChange = this.handleTexteareaChange.bind(this);
+    this.handleSubmitValue = this.handleSubmitValue.bind(this);
+    this.handleSelect = this.handleSelect.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -24,7 +28,8 @@ class TableCell extends React.Component {
     }
   }
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.value !== this.state.value) return true;
     if (nextProps.value !== this.props.value) return true;
     if (nextProps.selected !== this.props.selected) return true;
     if (nextProps.editing !== this.props.editing) return true;
@@ -35,39 +40,44 @@ class TableCell extends React.Component {
   componentDidUpdate(prevProps) {
     const becameSelected = !prevProps.selected && this.props.selected;
     const becameEditing = !prevProps.editing && this.props.editing;
-    const becameNotSelected = prevProps.selected && !this.props.selected;
     const becameNotEditing = prevProps.editing && !this.props.editing;
-    if (becameSelected || becameEditing) {
+
+    if (becameSelected || (becameNotEditing && this.props.selected)) {
       this.focus();
-      if (becameEditing) this.setCursorAtTheEnd();
     }
 
-    if (becameNotSelected || becameNotEditing) {
-      this.handleEditCell();
+    if (becameEditing) {
+      this.focusTextarea();
     }
-  }
-
-  setCursorAtTheEnd() {
-    const range = document.createRange();
-    range.selectNodeContents(this.contentNode);
-    range.collapse(false);
-
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
   }
 
   setContentNode(node) {
     this.contentNode = node;
   }
 
+  setTexteareaNode(node) {
+    this.textareaNode = node;
+  }
+
+  handleSelect() {
+    const { selected, rowKey, columnKey, onSelect } = this.props;
+    if (!selected) onSelect(columnKey, rowKey);
+  }
+
   blur() {
-    this.contentNode.blur();
+    this.blur();
+    if (this.contentNode) this.contentNode.blur();
   }
 
   focus() {
-    this.blur();
-    this.contentNode.focus();
+    if (this.contentNode) this.contentNode.focus();
+  }
+
+  focusTextarea() {
+    if(this.textareaNode) {
+      this.textareaNode.focus();
+      this.textareaNode.style.minHeight = `${this.textareaNode.scrollHeight}px`;
+    }
   }
 
   handleChange() {
@@ -75,41 +85,63 @@ class TableCell extends React.Component {
     this.setState({ value });
   }
 
-  handleEditCell() {
-    if (this.state.value !== this.props.value){
-      const { rowKey, columnKey, onEditCell } = this.props;
-      onEditCell(rowKey, columnKey, this.state.value);
+  handleTexteareaChange(e) {
+    this.setState({ value: e.target.value });
+  }
+
+  handleEditCell(e) {
+    e.stopPropagation();
+    const { rowKey, columnKey, onEditCell } = this.props;
+    onEditCell(columnKey, rowKey);
+  }
+
+  handleSubmitValue() {
+    const { columnKey, rowKey, onChangeCell, value } = this.props;
+    if (this.state.value !== value && onChangeCell) {
+      onChangeCell(columnKey, rowKey, this.state.value);
     }
   }
 
   render() {
-    const { value, selected, editing, editable, formula } = this.props;
-    const editingProps = editing
-      ? {
-          contentEditable: 'true',
-          dangerouslySetInnerHTML: { __html: this.state.value },
-          onBlur: this.handleEditCell,
-          onInput: this.handleChange,
-        }
-      : { children: value };
+    const { selected, editing, editable, formula } = this.props;
+
+    const className = classnames('TableCell__content', {
+      'TableCell__content--selected': selected,
+      'TableCell__content--editing': editing,
+      'TableCell__content--readonly': !editable,
+      'TableCell__content--formula': formula,
+    });
 
     return (
       <td className={classnames('TableCell', { 'TableCell--focused': selected })}>
         <div
-          style={this.props.style}
-          {...this.props.events}
-          className={classnames('TableCell__content', {
-            'TableCell__content--selected': selected,
-            'TableCell__content--editing': editing,
-            'TableCell__content--readonly': !editable,
-            'TableCell__content--formula': formula,
-          })}
-          tabIndex="0"
           ref={this.setContentNode}
-          {...editingProps}
-        />
+          className={className}
+          style={this.props.style}
+          onClick={this.handleSelect}
+          onKeyDown={this.props.onKeyDown}
+          tabIndex={selected ? '0' : '-1'}
+          role="button"
+        >
+          {editable ? (
+            <button className="TableCell__value" onClick={this.handleEditCell}>
+              {this.props.value}
+            </button>
+          ) : (
+            this.props.value
+          )}
+          {editable && (
+            <textarea
+              ref={this.setTexteareaNode}
+              className="TableCell__textarea"
+              style={this.props.style}
+              onChange={this.handleTexteareaChange}
+              value={this.state.value}
+              onBlur={this.handleSubmitValue}
+            />
+          )}
+        </div>
       </td>
-
     );
   }
 }

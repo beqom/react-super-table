@@ -1,47 +1,75 @@
 @import "../../../../style/inc";
 
-.TableHeader {
-  border-collapse: collapse;
-  table-layout: fixed;
-}
 
 .TableHeader__cell {
-  border: 1px solid #ccc;
+  border: 1px solid $color__grey--light;
+  height: 50px;
+  vertical-align: center;
 
   &:last-child {
     border-right: 0;
   }
 
-  &:nth-child(2) {
+  &:first-child {
     border-left: 0;
   }
-}
 
+  tr:first-child & {
+    border-top: 0;
+  }
+}
 
 
 .TableHeader__cell-content {
+  font: inherit;
   width: 100%;
-  color: #888;
+  color: $color__grey;
+  font-weight: normal;
+  padding: $cell-padding;
+  text-align: center;
   white-space: pre;
   text-overflow: ellipsis;
   overflow: hidden;
-
-  padding: 10px 5px;
 }
 
-.TableHeader__cell-content--select {
-  padding: 10px 15px;
-}
-
-.TableHeader__cell-fix {
-  width: 0;
-  overflow: hidden;
-
-  &:before {
-    content: "X";
-    display: block;
-    padding: 11px 0;
-    width: 0;
-    overflow: hidden;
+.TableHeader__cell-content--sortable {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  &:focus {
+    box-shadow: inset 0 0 0 3px $color__primary;
   }
+  &:hover {
+    background-color: $color__primary--light;
+  }
+}
+
+.TableHeader__sort{
+  opacity: .5;
+
+  svg {
+    display: block;
+  }
+}
+
+.TableHeader__sort--active {
+  color: $color__primary;
+  opacity: 1;
+}
+
+.TableHeader__cell-value {
+  flex: 1;
+  white-space: pre;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.TableHeader__cell-sort-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 5px;
 }
