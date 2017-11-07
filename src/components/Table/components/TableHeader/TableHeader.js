@@ -20,8 +20,16 @@ const CaretDown = ({ size = 8 }) => (
   </svg>
 );
 
+const getAriaSortProps = (isColumnSorted, sort) => {
+  if (!sort || !isColumnSorted) return {};
+  return {
+    'aria-sort': sort.get('way') === 1 ? 'ascending' : 'descending',
+  };
+};
+
 class TableHeader extends React.Component {
   shouldComponentUpdate(nextProps) {
+    if (this.props.sort !== nextProps.sort) return true;
     if (this.props.columns !== nextProps.columns) return true;
     return false;
   }
@@ -41,31 +49,62 @@ class TableHeader extends React.Component {
           if (group) {
             return acc.set(
               groupIndex === -1 ? acc.size : groupIndex,
-              group.set(
-                'columnsCount',
-                (group.get('columnsCount') || 0) + (column.get('columnsCount') || 1)
-              )
+              group
+                .set(
+                  'columnsCount',
+                  (group.get('columnsCount') || 0) + (column.get('columnsCount') || 1)
+                )
+                .set('isGroup', true)
             );
           }
         }
-        return acc.push(column.set('group', null));
+
+        // return acc.push(column.set('group', null));
+        const group = acc.last();
+        const columnsCount = column.get('columnsCount') || 1;
+        if (group && group.get('empty')) {
+          return acc.setIn(
+            [acc.size - 1, 'columnsCount'],
+            group.get('columnsCount') + columnsCount
+          );
+        }
+        return acc.push(
+          Immutable.Map({
+            isGroup: true,
+            empty: true,
+            key: `group-${column.get('key')}`,
+            name: '',
+            columnsCount,
+          })
+        );
       }, Immutable.List());
-      return this.getHeaders(groups).push(columnsWithGroup);
+      // return this.getHeaders(groups).push(columnsWithGroup);
+      return this.getHeaders(groups).push(columns);
     }
 
     return Immutable.List([columns]);
   }
 
-  renderSelectAllRows(rowIndex) {
-    if (rowIndex !== 0 || !this.props.onChangeSelectAllRows) return null;
+  renderSelectAllRows(isFirstRow, isLastRow) {
+    if (!this.props.onChangeSelectAllRows) return null;
 
-    return (
-      <th className="TableHeader__cell" rowSpan={this.props.headerRowsCount}>
-        <div className="TableHeader__cell-content TableHeader__cell-content--select">
-          <input type="checkbox" onChange={this.props.onChangeSelectAllRows} />
-        </div>
-      </th>
-    );
+    if (isFirstRow && !isLastRow) {
+      return (
+        <th className="TableHeader__cell" rowSpan={this.props.headerRowsCount - 1} />
+      );
+    }
+
+    if (isLastRow) {
+      return (
+        <th className="TableHeader__cell">
+          <div className="TableHeader__cell-content TableHeader__cell-content--select">
+            <input type="checkbox" onChange={this.props.onChangeSelectAllRows} />
+          </div>
+        </th>
+      );
+    }
+
+    return null;
   }
 
   renderHeaderRow(columns, rowIndex, rowsCount) {
@@ -79,12 +118,15 @@ class TableHeader extends React.Component {
       return (
         <th
           key={columnKey}
-          className="TableHeader__cell"
+          className={classnames('TableHeader__cell', {
+            'TableHeader__cell--empty-group': column.get('isGroup') && column.get('empty'),
+          })}
           colSpan={columnsCount || 0}
           rowSpan={columnsCount ? 0 : rowsCount - rowIndex}
           scope={columnsCount ? 'colgroup' : 'col'}
+          {...getAriaSortProps(isColumnSorted, sort)}
         >
-          {columnsCount || !this.props.onSort ? (
+          {column.get('isGroup') || !this.props.onSort ? (
             <div className="TableHeader__cell-content" style={style}>
               {column.get('title')}
             </div>
@@ -119,7 +161,7 @@ class TableHeader extends React.Component {
 
     return (
       <tr key={rowIndex} className="TableHeader__row">
-        {this.renderSelectAllRows(rowIndex)}
+        {this.renderSelectAllRows(rowIndex === 0, rowIndex === rowsCount - 1)}
         {headers}
       </tr>
     );
