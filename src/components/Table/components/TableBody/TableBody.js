@@ -35,11 +35,6 @@ class TableBody extends React.Component {
         return this.selectCellLeft(e);
       case 'ArrowRight':
         return this.selectCellRight(e);
-
-      case 'Tab': {
-        if (e.shiftKey) return this.selectCellLeft(e);
-        return this.selectCellRight(e);
-      }
       case 'Escape': {
         this.props.onCancelEditSelectedCell();
         return;
