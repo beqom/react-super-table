@@ -60,6 +60,12 @@ function TableReducer(state = Immutable.Map(), action = {}) {
     case TABLE_SORT: {
       const { tableId, columnKey, way } = action.payload;
       const sort = state.getIn([tableId, 'sort']);
+
+      // reset
+      if (sort.get('columnKey') === columnKey && sort.get('way') === -1) {
+        return state.setIn([tableId, 'sort'], Immutable.Map());
+      }
+
       const newWay = way || sort.get('columnKey') === columnKey
         ? sort.get('way') * -1
         : 1;

@@ -13,7 +13,7 @@ import 'github-markdown-css';
 setAddon(JSXAddon);
 
 setOptions({
-  name: 'Pretty UI',
+  name: 'React Super Table',
   downPanelInRight: true ,
   showLeftPanel: true,
 });
