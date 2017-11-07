@@ -27,11 +27,16 @@ const PARSERS = {
 class FakeDataService {
   constructor(d) {
     this.columns = Immutable.fromJS(d.columns)
-    .map(col =>
-      col
-        .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
-        .set('parser', PARSERS[col.get('parser') || 'IDENTITY'])
-    );
+      .map(col =>
+        col
+          .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
+          .set('parser', PARSERS[col.get('parser') || 'IDENTITY'])
+      )
+      .sort((a, b) => {
+        if (a.get('order') > b.get('order')) return 1;
+        if (a.get('order') < b.get('order')) return -1;
+        return 0;
+      })
 
     this.rows = Immutable.fromJS(d.rows);
     this.groups = Immutable.fromJS(d.groups);
