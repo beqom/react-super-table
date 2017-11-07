@@ -36924,7 +36924,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 (0, _react3.setAddon)(_storybookAddonJsx2.default);
 
 (0, _addonOptions.setOptions)({
-  name: 'Pretty UI',
+  name: 'React Super Table',
   downPanelInRight: true,
   showLeftPanel: true
 });
@@ -41045,6 +41045,12 @@ function TableReducer() {
             way = _action$payload4.way;
 
         var sort = state.getIn([_tableId4, 'sort']);
+
+        // reset
+        if (sort.get('columnKey') === columnKey && sort.get('way') === -1) {
+          return state.setIn([_tableId4, 'sort'], _immutable2.default.Map());
+        }
+
         var newWay = way || sort.get('columnKey') === columnKey ? sort.get('way') * -1 : 1;
 
         return state.setIn([_tableId4, 'sort', 'columnKey'], columnKey).setIn([_tableId4, 'sort', 'way'], newWay);
@@ -53435,4 +53441,4 @@ module.exports = __webpack_require__(744);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=preview.211a8a7194997edaeee7.bundle.js.map
+//# sourceMappingURL=preview.2e6463ff994ece018ff9.bundle.js.map
