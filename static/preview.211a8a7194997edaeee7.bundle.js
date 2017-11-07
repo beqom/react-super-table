@@ -43737,10 +43737,10 @@ exports.push([module.i, ".TableRow:hover {\n  background-color: #f3f9fe; }\n", "
 
 exports = module.exports = __webpack_require__(111)(undefined);
 // imports
-
+exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro);", ""]);
 
 // module
-exports.push([module.i, "* {\n  padding: 0;\n  margin: 0;\n  box-sizing: border-box; }\n\nhtml {\n  font-family: Helvetica, Arial, sans-serif;\n  font-size: 13px;\n  color: #343c47;\n  background: #f5f7fa; }\n", ""]);
+exports.push([module.i, "* {\n  padding: 0;\n  margin: 0;\n  box-sizing: border-box; }\n\nhtml {\n  font-family: 'Source Sans Pro', sans-serif;\n  font-size: 14px;\n  color: #343c47;\n  background: #f5f7fa; }\n", ""]);
 
 // exports
 
@@ -53435,4 +53435,4 @@ module.exports = __webpack_require__(744);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=preview.415cc83aa6dd0aae78d8.bundle.js.map
+//# sourceMappingURL=preview.211a8a7194997edaeee7.bundle.js.map
