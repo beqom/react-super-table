@@ -4,7 +4,7 @@ import {
   TABLE_SET_ROWS,
   TABLE_SET_GROUPS,
   TABLE_SET_DISPLAYABLE_ROWS,
-  TABLE_SORT,
+  TABLE_SET_SETTINGS,
 } from './constants';
 
 
@@ -47,12 +47,11 @@ export const setDisplayableRows = tableId => rows => ({
   },
 });
 
-export const sort = tableId => (columnKey, way) => ({
-  type: TABLE_SORT,
+export const setSettings = tableId => settings => ({
+  type: TABLE_SET_SETTINGS,
   payload: {
     tableId,
-    columnKey,
-    way,
+    settings,
   },
 });
 

@@ -1,6 +1,9 @@
 const path = require('path');
 
 module.exports = {
+  resolve: {
+    symlinks: false,
+  },
   module: {
     rules: [
       {

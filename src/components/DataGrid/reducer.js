@@ -6,7 +6,7 @@ import {
   TABLE_SET_ROWS,
   TABLE_SET_GROUPS,
   TABLE_SET_DISPLAYABLE_ROWS,
-  TABLE_SORT,
+  TABLE_SET_SETTINGS,
 } from './constants';
 
 import { getHeaderRowsCount, sortColumns } from '../../libs/helpers';
@@ -15,7 +15,7 @@ const initialState = Immutable.Map({
   groups: Immutable.List(),
   columns: Immutable.List(),
   hiddenColumns: Immutable.Map(),
-  sort: Immutable.Map(),
+  settings: Immutable.Map(),
   rows: Immutable.List(),
   displayableRows: Immutable.List(),
   headerRowsCount: 1,
@@ -57,22 +57,10 @@ function TableReducer(state = Immutable.Map(), action = {}) {
         .setIn([tableId, 'headerRowsCount'], getHeaderRowsCount(columns, groups) + 1);
     }
 
-    case TABLE_SORT: {
-      const { tableId, columnKey, way } = action.payload;
-      const sort = state.getIn([tableId, 'sort']);
-
-      // reset
-      if (sort.get('columnKey') === columnKey && sort.get('way') === -1) {
-        return state.setIn([tableId, 'sort'], Immutable.Map());
-      }
-
-      const newWay = way || sort.get('columnKey') === columnKey
-        ? sort.get('way') * -1
-        : 1;
-
+    case TABLE_SET_SETTINGS: {
+      const { tableId, settings } = action.payload;
       return state
-        .setIn([tableId, 'sort', 'columnKey'], columnKey)
-        .setIn([tableId, 'sort', 'way'], newWay)
+        .setIn([tableId, 'settings'], Immutable.fromJS(settings));
     }
 
     default:

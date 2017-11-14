@@ -6,6 +6,7 @@ import withReadme from 'storybook-readme/with-readme';
 import Immutable from 'immutable';
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
+import compose from 'lodash/fp/compose';
 
 import DataGridContainer from './DataGridContainer';
 import reducer from './reducer';
@@ -23,6 +24,21 @@ const PARSERS = {
   NUMBER: x => parseFloat(`${x}`.replace(/[^0-9.,-]/g, '').replace(',', '.'), 10),
   IDENTITY: x => x,
 };
+
+const sortRows = sort => rows => (
+  sort && sort.columnKey
+    ? rows.sort((a, b) => {
+      if (a.get(sort.columnKey) > b.get(sort.columnKey) ) return sort.way;
+      if (a.get(sort.columnKey) < b.get(sort.columnKey) ) return sort.way * -1;
+      return 0;
+    })
+    : rows
+  );
+
+const applyPagination = ({ current, rowsPerPage }) => rows => {
+  const startIndex = rowsPerPage * (current - 1);
+  return rows.slice(startIndex, startIndex + rowsPerPage);
+}
 
 class FakeDataService {
   constructor(d) {
@@ -43,19 +59,29 @@ class FakeDataService {
 
     this.fetchData = this.fetchData.bind(this);
     this.onChangeCell = this.onChangeCell.bind(this);
+
+    const rowsPerPage = 10;
+
+    this.initialSettings = {
+      pagination: {
+        max: Math.ceil(this.rows.size / rowsPerPage),
+        current: 1,
+        rowsPerPage,
+      },
+    };
   }
 
-  fetchData({ sort } = {}) {
-    const rowsFetched = sort && sort.columnKey
-      ? this.rows.sort((a, b) => {
-        if (a.get(sort.columnKey) > b.get(sort.columnKey) ) return sort.way;
-        if (a.get(sort.columnKey) < b.get(sort.columnKey) ) return sort.way * -1;
-        return 0;
-      })
-      : this.rows;
+  fetchData(newSettings = {}) {
+    const settings = Object.assign({}, this.initialSettings, newSettings);
+    const rows = compose(
+      applyPagination(settings.pagination),
+      sortRows(settings.sort)
+    )(this.rows);
+
     return Promise.resolve({
+      rows,
+      settings,
       columns: this.columns,
-      rows: rowsFetched.slice(0, 10),
       groups: this.groups,
     })
   }

@@ -2,7 +2,10 @@
   "name": "react-table",
   "version": "0.0.1",
   "main": "index.js",
-  "repository": "https://renaudtertrais.github.io/pretty-ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://renaudtertrais.github.io/pretty-ui"
+  },
   "author": "Renaud Tertrais <renaud.tertrais@gmail.com>",
   "license": "MIT",
   "scripts": {
@@ -47,11 +50,13 @@
     "classnames": "^2.2.5",
     "immutable": "^3.8.2",
     "lodash": "^4.17.4",
+    "pretty-ui": "0.1.1",
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-immutable-proptypes": "^2.1.0",
     "react-redux": "^5.0.6",
-    "redux": "^3.7.2"
+    "redux": "^3.7.2",
+    "styled-components": "^2.2.3"
   }
 }

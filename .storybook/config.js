@@ -4,11 +4,12 @@ import { withKnobs } from '@storybook/addon-knobs';
 import { setOptions } from '@storybook/addon-options';
 import JSXAddon from 'storybook-addon-jsx';
 import { withInfo, setDefaults } from '@storybook/addon-info';
+import { ThemeProvider } from 'styled-components';
 
 import fixAddonInfo from './fixAddonInfo';
 
 import '../src/style/index.scss';
-import 'github-markdown-css';
+import theme from 'pretty-ui/theme';
 
 setAddon(JSXAddon);
 
@@ -45,6 +46,12 @@ addDecorator((story, context) => withInfo('')(story)(context));
 addDecorator(fixAddonInfo);
 
 addDecorator(withKnobs);
+
+addDecorator(story => (
+  <ThemeProvider theme={theme}>
+    {story()}
+  </ThemeProvider>
+));
 
 function loadStories() {
   require('../src/components/DataGrid/story');
