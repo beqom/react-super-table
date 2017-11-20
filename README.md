@@ -1,6 +1,6 @@
 # Data Grid
 
-demo: https://beqom.github.io/react-super-table/
+demo: https://beqom.github.io/data-grid/
 
 
 ## Getting started
