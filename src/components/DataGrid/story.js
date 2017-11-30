@@ -79,10 +79,10 @@ class FakeDataService {
     )(this.rows);
 
     return Promise.resolve({
-      rows,
+      rows: rows.toJS(),
       settings,
-      columns: this.columns,
-      groups: this.groups,
+      columns: this.columns.toJS(),
+      groups: this.groups.toJS(),
     })
   }
 

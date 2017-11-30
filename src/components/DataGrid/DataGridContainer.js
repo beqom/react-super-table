@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Immutable from 'immutable';
 import compose from 'lodash/fp/compose';
 import mapValues from 'lodash/fp/mapValues';
-import Pagination from 'pretty-ui/Pagination';
+import Pagination from '@beqom/alto-ui/Pagination';
 
 import * as actions from './actions';
 import { formatRows } from '../../libs/helpers';
@@ -38,13 +38,20 @@ class DataGridContainer extends Component {
   fetchData(newSettings = {}) {
     const allSettings = Object.assign({}, this.getDataFetchingSetting(), newSettings);
 
-    this.props.fetchData(allSettings).then(({ groups, columns, rows, settings }) => {
-      this.props.setGroups(groups);
-      this.props.setColumns(columns);
-      this.props.setSettings(settings);
-      this.props.setRows(rows.slice(0, 10));
-      this.props.setDisplayableRows(formatRows(rows, columns));
-    });
+    this.props.fetchData(allSettings)
+      .then(({ groups, columns, rows, settings }) => ({
+        groups: Immutable.fromJS(groups),
+        columns: Immutable.fromJS(columns),
+        rows: Immutable.fromJS(rows),
+        settings,
+      }))
+      .then(({ groups, columns, rows, settings }) => {
+        this.props.setGroups(groups);
+        this.props.setColumns(columns);
+        this.props.setSettings(settings);
+        this.props.setRows(rows.slice(0, 10));
+        this.props.setDisplayableRows(formatRows(rows, columns));
+      });
   }
 
   handleChangeCell(columnKey, rowKey, value) {
@@ -56,20 +63,22 @@ class DataGridContainer extends Component {
     const rowIndex = rows.findIndex(r => r.get(this.props.rowKey) === rowKey);
 
     const promise = this.props.onChangeCell({
-      rows,
+      rows: rows.toJS(),
       rowIndex,
       row: rows.get(rowIndex),
       value: parsedValue,
       key: columnKey,
-      columns,
-      column,
+      columns: columns.toJS(),
+      column: column.toJS(),
     });
 
     if (promise && promise.then) {
-      promise.then(newRows => {
-        this.props.setRows(newRows);
-        this.props.setDisplayableRows(formatRows(newRows, columns));
-      });
+      promise
+        .then(newRows => Immutable.fromJS(newRows))
+        .then(newRows => {
+          this.props.setRows(newRows);
+          this.props.setDisplayableRows(formatRows(newRows, columns));
+        });
     } else {
       const displayableRows = this.props.store.get('displayableRows');
       const formatter = column.get('formatter');

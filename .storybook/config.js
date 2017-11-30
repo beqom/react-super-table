@@ -4,12 +4,11 @@ import { withKnobs } from '@storybook/addon-knobs';
 import { setOptions } from '@storybook/addon-options';
 import JSXAddon from 'storybook-addon-jsx';
 import { withInfo, setDefaults } from '@storybook/addon-info';
-import { ThemeProvider } from 'styled-components';
 
 import fixAddonInfo from './fixAddonInfo';
 
 import '../src/style/index.scss';
-import theme from 'pretty-ui/theme';
+import AltoUIRoot from '@beqom/alto-ui/AltoUIRoot';
 
 setAddon(JSXAddon);
 
@@ -48,9 +47,9 @@ addDecorator(fixAddonInfo);
 addDecorator(withKnobs);
 
 addDecorator(story => (
-  <ThemeProvider theme={theme}>
+  <AltoUIRoot>
     {story()}
-  </ThemeProvider>
+  </AltoUIRoot>
 ));
 
 function loadStories() {

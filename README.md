@@ -86,7 +86,7 @@ Could be generated randomly in the contructor of your component.
 Name of the reducer you gave when you added to redux with combineReducer.
 
 
-#### `rowKey``
+#### `rowKey`
 
 `PropTypes.string.isRequired`
 
@@ -94,7 +94,7 @@ Column key that identify a row as unique. Often "id".
 
 #### `fetchData`
 
-`PropTypes.func.isRequired``
+`PropTypes.func.isRequired`
 
 Function that return a promise. This promise should return the following result:
 

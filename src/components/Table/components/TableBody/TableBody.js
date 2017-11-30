@@ -27,25 +27,35 @@ class TableBody extends React.Component {
     if (!selectedCell) return;
 
     switch (e.key) {
-      case 'ArrowUp':
-        return this.selectCellAbove(e);
-      case 'ArrowDown':
-        return this.selectCellBelow(e);
-      case 'ArrowLeft':
-        return this.selectCellLeft(e);
-      case 'ArrowRight':
-        return this.selectCellRight(e);
+      case 'ArrowUp':{
+        this.selectCellAbove(e);
+        return;
+      }
+      case 'ArrowDown':{
+        this.selectCellBelow(e);
+        return;
+      }
+      case 'ArrowLeft':{
+        this.selectCellLeft(e);
+        return;
+      }
+      case 'ArrowRight':{
+        this.selectCellRight(e);
+        return;
+      }
       case 'Escape': {
         this.props.onCancelEditSelectedCell();
         return;
       }
       case 'Enter': {
         e.preventDefault();
-        if (selectedCell.editing) return this.selectCellBelow();
-        return this.props.onEditSelectedCell();
+        if (selectedCell.editing) this.selectCellBelow();
+        else this.props.onEditSelectedCell();
+        return;
       }
-      default:
-        return this.props.onEditSelectedCell();
+      default: {
+        this.props.onEditSelectedCell();
+      }
     }
   }
 
