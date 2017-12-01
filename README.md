@@ -17,14 +17,10 @@ $ yarn add @beqom/data-grid
 
 Be sure to have all the required peer dependencies:
 
-- **classnames**: `>=2.0.0`
-- **immutable**: `>=3.8.0`
-- **lodash**: `>=4.0.0`
-- **pretty-ui**: `^0.1.1`
+- **@beqom/alto-ui**: `^0.3.2`
 - **prop-types**: `>=15.0.0`
 - **react**: `>=15.0.0`
 - **react-dom**: `>=15.0.0`
-- **react-immutable-proptypes**: `>=2.1.0`
 - **react-redux**: `>=5.0.0`
 - **redux**: `>=3.0.0`
 

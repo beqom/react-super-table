@@ -1,11 +1,8 @@
 {
   "name": "@beqom/data-grid",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://renaudtertrais.github.io/pretty-ui"
-  },
+  "repository": "https://github.com/beqom/data-grid.git",
   "author": "Renaud Tertrais <renaud.tertrais@gmail.com>",
   "license": "MIT",
   "scripts": {
