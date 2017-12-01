@@ -13,7 +13,8 @@ import AltoUIRoot from '@beqom/alto-ui/AltoUIRoot';
 setAddon(JSXAddon);
 
 setOptions({
-  name: 'React Super Table',
+  name: 'Data Grid',
+  url: 'https://github.com/beqom/data-grid',
   downPanelInRight: true ,
   showLeftPanel: true,
 });
