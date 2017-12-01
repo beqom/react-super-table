@@ -89,9 +89,7 @@ class TableHeader extends React.Component {
     if (!this.props.onChangeSelectAllRows) return null;
 
     if (isFirstRow && !isLastRow) {
-      return (
-        <th className="TableHeader__cell" rowSpan={this.props.headerRowsCount - 1} />
-      );
+      return <th className="TableHeader__cell" rowSpan={this.props.headerRowsCount - 1} />;
     }
 
     if (isLastRow) {
@@ -111,8 +109,9 @@ class TableHeader extends React.Component {
     const { sort } = this.props;
     const headers = columns.map(column => {
       const columnsCount = column.get('columnsCount');
-      const layout = column.get('layout');
-      const style = layout ? { width: layout.get('width') } : {};
+      const style = column.getIn(['layout', 'flex'])
+        ? { minWidth: column.getIn(['layout', 'minWidth']) || 20 }
+        : { width: column.getIn(['layout', 'width']) };
       const columnKey = column.get('key');
       const isColumnSorted = sort && sort.get('columnKey') === columnKey;
       return (
@@ -125,6 +124,7 @@ class TableHeader extends React.Component {
           rowSpan={columnsCount ? 0 : rowsCount - rowIndex}
           scope={columnsCount ? 'colgroup' : 'col'}
           {...getAriaSortProps(isColumnSorted, sort)}
+          style={style}
         >
           {column.get('isGroup') || !this.props.onSort ? (
             <div className="TableHeader__cell-content" style={style}>

@@ -22,7 +22,7 @@
       "title": "Firstname",
       "order": 2,
       "dataType": "string",
-      "layout": { "visible": true, "frozen": true, "width": 120 },
+      "layout": { "visible": true, "frozen": true, "minWidth": 20, "flex": true },
       "editable": false,
       "formula": null,
       "formatter": null,

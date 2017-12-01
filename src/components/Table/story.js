@@ -44,7 +44,7 @@ storiesOf('Table', module)
   .add('playground', () => (
     <Table
       groups={groups}
-      columns={columns}
+      columns={columns.slice(0, number('columns', 10))}
       headerRowsCount={2}
       rows={boolean('empty', false) ? [] : rows.slice(0, number('rows', 10))}
       rowKey="id"
