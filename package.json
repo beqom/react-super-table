@@ -13,7 +13,7 @@
     "prebuild:storybook": "npm run clean:storybook",
     "build:storybook": "build-storybook -c .storybook -o build/storybook",
     "storybook": "start-storybook -p 9001 -c .storybook",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build:storybook",
     "deploy": "gh-pages -d build/storybook",
     "clean:dist": "rimraf dist",
     "prebuild": "npm run clean:dist && copy ./package.json ./README.md ./dist",
