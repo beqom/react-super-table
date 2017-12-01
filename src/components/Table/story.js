@@ -24,13 +24,6 @@ const PARSERS = {
   IDENTITY: x => x,
 };
 
-const columns = Immutable.fromJS(data.columns)
-  .map(col =>
-    col
-      .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
-      .set('parser', PARSERS[col.get('parser') || 'IDENTITY'])
-  );
-
 const rows = Immutable.fromJS(data.rows);
 const groups = Immutable.fromJS(data.groups);
 
@@ -41,12 +34,23 @@ storiesOf('Table', module)
     <div style={{ margin: 50 }}>{story()}</div>
     ))
   // .addWithJSX('playground', () => (
-  .add('playground', () => (
-    <Table
-      groups={groups}
-      columns={columns.slice(0, number('columns', 10))}
-      headerRowsCount={2}
-      rows={boolean('empty', false) ? [] : rows.slice(0, number('rows', 10))}
-      rowKey="id"
-    />
-  ));
+  .add('playground', () => {
+    const empty = boolean('empty', false);
+    const rowsToDisplay = empty ? [] : rows.slice(0, number('rows', 10));
+    const columnsNumber = number('columns number', 10);
+    const columns = Immutable.fromJS(object('columns', data.columns))
+    .map(col =>
+      col
+        .set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY'])
+        .set('parser', PARSERS[col.get('parser') || 'IDENTITY'])
+    );
+    return (
+      <Table
+        groups={groups}
+        columns={columns.slice(0, columnsNumber)}
+        headerRowsCount={2}
+        rows={rowsToDisplay}
+        rowKey="id"
+      />
+    );
+  });
