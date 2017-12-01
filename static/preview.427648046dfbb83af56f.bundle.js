@@ -45927,10 +45927,6 @@ var PARSERS = {
   }
 };
 
-var columns = _immutable2.default.fromJS(_data2.default.columns).map(function (col) {
-  return col.set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY']).set('parser', PARSERS[col.get('parser') || 'IDENTITY']);
-});
-
 var rows = _immutable2.default.fromJS(_data2.default.rows);
 var groups = _immutable2.default.fromJS(_data2.default.groups);
 
@@ -45943,11 +45939,17 @@ var groups = _immutable2.default.fromJS(_data2.default.groups);
 })
 // .addWithJSX('playground', () => (
 .add('playground', function () {
+  var empty = (0, _addonKnobs.boolean)('empty', false);
+  var rowsToDisplay = empty ? [] : rows.slice(0, (0, _addonKnobs.number)('rows', 10));
+  var columnsNumber = (0, _addonKnobs.number)('columns number', 10);
+  var columns = _immutable2.default.fromJS((0, _addonKnobs.object)('columns', _data2.default.columns)).map(function (col) {
+    return col.set('formatter', FORMATTERS[col.get('formatter') || 'IDENTITY']).set('parser', PARSERS[col.get('parser') || 'IDENTITY']);
+  });
   return _react2.default.createElement(_Table2.default, {
     groups: groups,
-    columns: columns.slice(0, (0, _addonKnobs.number)('columns', 10)),
+    columns: columns.slice(0, columnsNumber),
     headerRowsCount: 2,
-    rows: (0, _addonKnobs.boolean)('empty', false) ? [] : rows.slice(0, (0, _addonKnobs.number)('rows', 10)),
+    rows: rowsToDisplay,
     rowKey: 'id'
   });
 });
@@ -58487,4 +58489,4 @@ module.exports = __webpack_require__(749);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=preview.64f1b9f5cc228536fb1a.bundle.js.map
+//# sourceMappingURL=preview.427648046dfbb83af56f.bundle.js.map
