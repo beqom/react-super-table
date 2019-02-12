@@ -68,7 +68,7 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "immutable": "^3.8.2",
-    "lodash": "4.17.4",
+    "lodash": ">=4.17.11",
     "react-immutable-proptypes": "2.1.0",
     "styled-components": "^2.2.3"
   }
